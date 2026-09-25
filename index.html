@@ -1,95 +1,1662 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport"
-        content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover" />
-  <title>Point Chase Game</title>
-  <link rel="stylesheet" href="styles.css" />
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Factorial · Permutations · Combinations · Binomial</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+<script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+<style>
+* { margin:0; padding:0; box-sizing:border-box; }
+body {
+  font-family: 'Inter', sans-serif;
+  background: #fff;
+  color: #111;
+  min-height: 100vh;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ── HEADER ──────────────────────────────────────────────── */
+header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 28px 52px;
+  border-bottom: 1px solid #f0f0f0;
+  gap: 32px;
+}
+.header-left  { display: flex; flex-direction: column; gap: 12px; }
+.header-center { display: flex; flex-direction: column; gap: 6px; }
+.topic-row { display: flex; gap: 6px; }
+.topic-row-center { justify-content: center; }
+.header-right  { display: flex; flex-direction: column; gap: 6px; align-items: stretch; min-width: 130px; }
+.slider-row { display: flex; align-items: center; gap: 12px; }
+.slider-lbl { font-size: 0.85rem; font-weight: 700; color: #aaa; width: 14px; font-style: italic; }
+input[type=range] {
+  -webkit-appearance: none;
+  width: 140px; height: 4px;
+  background: #e5e5e5; border-radius: 2px; outline: none; cursor: pointer;
+}
+input[type=range]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 15px; height: 15px; border-radius: 50%;
+  background: #111; cursor: pointer;
+  border: 2px solid #fff; box-shadow: 0 0 0 1.5px #111;
+  transition: transform 0.12s;
+}
+input[type=range]::-webkit-slider-thumb:hover { transform: scale(1.2); }
+.slider-val { font-size: 1.15rem; font-weight: 700; color: #111; min-width: 22px; text-align: right; }
+
+.topic-btn, .mode-btn {
+  font-family: inherit; font-size: 0.82rem; font-weight: 600;
+  padding: 8px 14px; border-radius: 7px;
+  display: flex; align-items: center; justify-content: center; gap: 7px;
+  border: 1.5px solid #e5e5e5;
+  background: #fff; color: #aaa;
+  cursor: pointer; text-align: center;
+  letter-spacing: 0.02em; transition: all 0.15s; white-space: nowrap;
+}
+.topic-btn:hover:not(.active), .mode-btn:hover:not(.active) { border-color: #bbb; color: #555; }
+.topic-btn.active { background: #111; border-color: #111; color: #fff; }
+.topic-btn .katex { font-size: 0.8rem; }
+.topic-btn .katex .frac-line { border-color: currentColor; }
+.mode-btn.active  { background: #fff; border-color: #111; color: #111; }
+
+/* ── CONTENT ─────────────────────────────────────────────── */
+.content { max-width: 1400px; margin: 0 auto; padding: 60px 32px 100px; }
+
+/* ── PEOPLE LINE ─────────────────────────────────────────── */
+.people-line { display: flex; align-items: flex-start; gap: 22px; margin-bottom: 52px; flex-wrap: wrap; }
+.person { display: flex; flex-direction: column; align-items: center; gap: 8px; cursor: grab; user-select: none; touch-action: none; }
+.person:active { cursor: grabbing; }
+.person-name { font-size: 0.65rem; font-weight: 700; letter-spacing: 0.07em; text-transform: uppercase; transition: opacity 0.2s; }
+.person-circle {
+  width: 66px; height: 66px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 1.4rem; font-weight: 700; color: #fff;
+  box-shadow: 0 3px 10px rgba(0,0,0,0.13);
+  transition: transform 0.2s cubic-bezier(.34,1.56,.64,1), box-shadow 0.2s ease, opacity 0.2s;
+}
+.person.drag-src .person-circle { opacity: 0.2; transform: scale(0.88); }
+.person.drag-src .person-name { opacity: 0.2; }
+.person.drag-over .person-circle { transform: scale(1.2); box-shadow: 0 8px 28px rgba(0,0,0,0.18); }
+.person-pos { font-size: 0.6rem; color: #ccc; letter-spacing: 0.04em; min-height: 14px; }
+#drag-clone { position: fixed; left: 0; top: 0; pointer-events: none; z-index: 9999; will-change: transform; filter: drop-shadow(0 10px 22px rgba(0,0,0,0.28)); }
+.arr-item-current { box-shadow: 0 0 0 2px #111; background: #f5f5f5 !important; font-weight: 900; }
+.arr-item.drag-hl { outline: 2px solid #111; font-weight: 900; }
+.arr-item.drag-hl-green { background: rgba(39,174,96,0.22) !important; outline-color: #27ae60; }
+.arr-item.drag-hl-red   { background: rgba(231,76,60,0.22) !important; outline-color: #e74c3c; }
+/* The arrangement row matching the current order of colors — plain black
+   box outline only, never colored. */
+.binom-combo-row.current-match { outline: 2px solid #111; border-radius: 3px; font-weight: 900; }
+
+/* ── TEXT LINES ──────────────────────────────────────────── */
+.line-set { font-size: 1.9rem; color: #111; margin-bottom: 20px; letter-spacing: 0.01em; }
+.line-set .katex { font-size: 1.9rem; }
+.line-formula { font-size: 1.55rem; color: #111; margin-bottom: 18px; font-weight: 500; }
+.line-formula .katex { font-size: 1.55rem; }
+.line-formula b { font-weight: 800; font-size: 1.65rem; }
+.line-def { font-size: 1.2rem; color: #111; line-height: 1.9; margin-bottom: 48px; max-width: 680px; }
+.line-def .katex { font-size: 1.25rem; }
+.line-def b { color: #111; font-weight: 800; }
+.line-def b.tier-word { text-shadow: 0 0 1px rgba(0,0,0,0.45); }
+
+/* ── ARRANGEMENTS ────────────────────────────────────────── */
+.arr-header {
+  display: flex; align-items: center;
+  justify-content: space-between; margin-bottom: 18px;
+}
+.arr-header-left { display: flex; align-items: baseline; gap: 12px; flex-wrap: wrap; }
+.arr-label { font-size: 0.68rem; font-weight: 600; letter-spacing: 0.14em; text-transform: uppercase; color: #bbb; }
+.arr-total { font-size: 0.78rem; color: #ccc; }
+.drag-note { font-size: 0.72rem; color: #bbb; font-style: italic; margin-bottom: 10px; }
+
+/* ═══ PEOPLE LINE GRAPHIC (delete this whole block to remove) ═══ */
+.people-graphic { display: flex; flex-wrap: wrap; align-items: flex-end; justify-content: flex-end; gap: 18px; margin: 4px 0 34px; }
+
+.binom-combo-row.cell-hover-row { background: #e3e3e3; border-radius: 3px; }
+.people-graphic.pg-center { justify-content: center; }
+.def-sub { font-size: 0.9rem; color: #888; margin-top: 14px; line-height: 1.7; }
+.fact-top { display: flex; gap: 48px; align-items: center; justify-content: space-between; flex-wrap: wrap; margin-bottom: 40px; }
+.fact-left { flex: 0 1 auto; }
+.fact-graphic { flex: 1 1 320px; display: flex; align-items: center; justify-content: center; }
+.fact-graphic .people-graphic { margin: 0; justify-content: center; gap: 10px; flex-wrap: nowrap; }
+.fact-def { font-size: 1.45rem; margin-bottom: 22px; }
+.fact-def b { color: #111; font-weight: 800; }
+.fact-eq { min-width: 340px; font-size: 1.3rem; line-height: 1.95; color: #111; }
+.fact-eq b { color: #111; font-weight: 800; }
+.fq-rule { border-top: 2px solid #111; margin: 6px 0 4px; }
+.fq-total { font-weight: 600; }
+.pg-person[data-pos] { cursor: grab; user-select: none; touch-action: none; }
+.pg-person[data-pos]:active { cursor: grabbing; }
+.pg-person.drag-src { opacity: 0.25; }
+.pg-person.drag-over svg { transform: scale(1.15); transition: transform 0.15s; }
+.pg-person { display: flex; flex-direction: column; align-items: center; gap: 6px; }
+.pg-label { font-size: 0.9rem; font-weight: 700; }
+.pg-medal {
+  height: 22px; padding: 0 8px; border-radius: 11px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 0.6rem; font-weight: 800; letter-spacing: 0.02em;
+  white-space: nowrap;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.3); margin-bottom: 3px;
+}
+.pg-medal-empty { background: transparent; box-shadow: none; height: 22px; }
+/* ═════════════════════════════════════════════════════════════ */
+.arr-unique { font-size: 0.78rem; color: #111; font-weight: 600; }
+
+.zoom-ctrl { display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
+.zoom-btn {
+  width: 24px; height: 24px; border-radius: 4px;
+  background: none; border: 1px solid #e5e5e5;
+  cursor: pointer; font-size: 1rem; color: #999;
+  display: flex; align-items: center; justify-content: center;
+  transition: all 0.15s; font-family: inherit; line-height: 1;
+}
+.zoom-btn:hover { border-color: #aaa; color: #333; }
+.zoom-level { font-size: 0.7rem; color: #bbb; min-width: 30px; text-align: center; }
+
+.show-all-btn {
+  font-family: inherit; font-size: 0.72rem; font-weight: 600;
+  padding: 4px 11px; border-radius: 4px;
+  border: 1px solid #e5e5e5; background: #fff; color: #999;
+  cursor: pointer; letter-spacing: 0.03em; transition: all 0.15s;
+  margin-right: 6px;
+}
+.show-all-btn:hover { border-color: #bbb; color: #444; background: #fafafa; }
+.show-all-btn.active { background: #111; color: #fff; border-color: #111; }
+
+.arr-columns { display: flex; gap: 0; overflow-x: auto; padding: 4px 4px 8px; }
+.arr-col {
+  flex: 1; min-width: 90px; padding-right: 18px;
+  border-right: 1px solid #f0f0f0; margin-right: 18px;
+}
+.arr-col:last-child { border-right: none; margin-right: 0; padding-right: 0; }
+.arr-col-head {
+  font-size: 0.9rem; font-weight: 600; letter-spacing: 0.08em;
+  color: #bbb; text-transform: uppercase;
+  padding-bottom: 10px; margin-bottom: 10px;
+  border-bottom: 1px solid #f0f0f0; white-space: nowrap;
+}
+.arr-col-head .katex { font-size: 1em; }
+
+/* bright item */
+.arr-item {
+  display: flex; gap: 0px; align-items: center;
+  font-size: 1.05rem; font-weight: 600; letter-spacing: 0.03em;
+  padding: 3px 7px; border-radius: 4px; margin-bottom: 3px;
+  cursor: default; transition: background 0.12s; width: fit-content;
+}
+.arr-item:hover { background: #f5f5f5; }
+.arr-item .katex { font-size: 1em; }
+
+/* grey/dim item */
+.arr-item.dim {
+  font-weight: 400;
+}
+.arr-item.dim:hover { background: transparent; }
+
+/* combination boxes */
+.comb-boxes { display: flex; flex-direction: column; gap: 10px; width: 100%; }
+.comb-box { border: 1.5px solid #111; padding: 7px 10px; }
+.comb-box-label { font-size: 0.72rem; font-weight: 600; margin-bottom: 5px; padding-bottom: 4px; border-bottom: 1px solid #ebebeb; }
+.comb-grid-row { display: flex; gap: 0; }
+
+/* canonical group outline */
+.canon-group {
+  border: 1.5px solid #111;
+  border-radius: 4px;
+  padding: 4px 5px;
+  margin-bottom: 20px;
+  background: #fff;
+}
+
+/* Combinations show-all: one flowing, auto-wrapping sequence of boxes —
+   no per-letter columns, since a subset has no single "home" letter. */
+.comb-flow {
+  display: grid;
+  width: 100%;            /* span the full arrangements width, like Permutations */
+  gap: 20px 37px;         /* same pitch/spacing as the Permutations columns */
+  align-items: start;
+}
+.comb-flow .canon-group { margin-bottom: 0; }   /* same padding + left-aligned rows as Permutations */
+
+.arr-columns.compact .arr-item { font-size: 0.72rem; padding: 1px 4px; margin-bottom: 1px; }
+.arr-columns.compact .arr-item .katex { font-size: 0.84rem; }
+.arr-columns.compact .arr-col { min-width: 52px; padding-right: 10px; margin-right: 10px; }
+.arr-columns.compact .arr-col-head { font-size: 0.62rem; }
+.arr-columns.compact .arr-col-head .katex { font-size: 0.8rem; }
+.arr-columns.tiny .arr-item { font-size: 0.6rem; padding: 0px 3px; margin-bottom: 0px; }
+.arr-columns.tiny .arr-item .katex { font-size: 0.7rem; }
+.arr-columns.tiny .arr-col { min-width: 40px; padding-right: 7px; margin-right: 7px; }
+.arr-columns.tiny .arr-col-head { font-size: 0.55rem; }
+.arr-columns.tiny .arr-col-head .katex { font-size: 0.68rem; }
+
+.arr-columns::-webkit-scrollbar { height: 3px; }
+.arr-columns::-webkit-scrollbar-track { background: transparent; }
+.arr-columns::-webkit-scrollbar-thumb { background: #e5e5e5; border-radius: 2px; }
+
+/* ── DIST PEOPLE ─────────────────────────────────────────── */
+.dist-people-line { display: flex; gap: 22px; flex-wrap: wrap; margin-bottom: 28px; }
+.dist-person { display: flex; flex-direction: column; align-items: center; gap: 7px; }
+.dist-indicator {
+  width: 52px; height: 52px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 1.5rem; font-weight: 700; cursor: grab;
+  user-select: none; touch-action: none;
+  transition: transform 0.2s cubic-bezier(.34,1.56,.64,1), box-shadow 0.2s, opacity 0.15s;
+}
+.dist-indicator.dist-success {
+  background: rgba(39,174,96,0.13); color: #27ae60;
+  box-shadow: 0 2px 10px rgba(39,174,96,0.22);
+}
+.dist-indicator.dist-fail {
+  background: rgba(231,76,60,0.13); color: #e74c3c;
+  box-shadow: 0 2px 10px rgba(231,76,60,0.22);
+}
+.dist-indicator:hover { transform: scale(1.1); }
+.dist-indicator.dist-drag-over { transform: scale(1.25) !important; }
+.dist-indicator.dist-drag-src { opacity: 0.18; transform: scale(0.88) !important; }
+.dist-person-name { font-size: 0.62rem; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: #888; }
+
+/* Dist panel's own people row — sized to always fit all 8 on one line
+   within the widened left column below */
+.people-line-dist { gap: 9px; flex-wrap: nowrap; margin-bottom: 32px; }
+.people-line-dist .person-circle { width: 46px; height: 46px; font-size: 1.05rem; box-shadow: 0 2px 8px rgba(0,0,0,0.13); }
+.people-line-dist .person-name { font-size: 0.58rem; }
+.people-line-dist .person-pos { min-height: 0; }
+
+/* Probability-space grid and distribution chart — plain, no card chrome */
+.dist-viz-card {
+  display: flex; flex-direction: column;
+}
+
+/* ── DIST LAYOUT ─────────────────────────────────────────── */
+.dist-col-label {
+  font-size: 0.62rem; font-weight: 700; letter-spacing: 0.14em;
+  text-transform: uppercase; color: #bbb; margin-bottom: 12px;
+  border-bottom: 1px solid #f0f0f0; padding-bottom: 6px;
+}
+.dist-bottom-row {
+  display: flex; gap: 52px; align-items: flex-start;
+  overflow-x: auto; padding-bottom: 16px;
+}
+.dist-bottom-col { flex: 1; min-width: 0; }
+.dist-bottom-center { flex: 0 0 auto; display: flex; flex-direction: column; align-items: center; }
+
+/* ── BINOMIAL CHART ──────────────────────────────────────── */
+.binom-chart {
+  display: flex;
+  gap: 8px;
+  align-items: flex-end;
+  margin-top: 40px;
+  max-width: 640px;
+}
+.binom-bar-wrap {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  flex: 1;
+  min-width: 30px;
+  cursor: pointer;
+}
+.binom-prob-val {
+  font-size: 0.68rem;
+  font-weight: 600;
+  text-align: center;
+  min-height: 16px;
+  white-space: nowrap;
+  color: #ccc;
+}
+.binom-bar-wrap.selected .binom-prob-val { color: #111; font-weight: 800; }
+.binom-bar {
+  width: 100%;
+  max-width: 52px;
+  background: #e5e5e5;
+  border-radius: 2px 2px 0 0;
+  min-height: 2px;
+  transition: background 0.12s;
+}
+.binom-bar-wrap:hover:not(.selected) .binom-bar { background: #bbb; }
+.binom-bar-wrap.selected .binom-bar { background: #3498db; }
+.binom-bar-k {
+  font-size: 0.73rem;
+  font-weight: 600;
+  color: #ccc;
+  margin-top: 2px;
+}
+.binom-bar-k .katex { font-size: 0.82rem; }
+.binom-bar-wrap.selected .binom-bar-k { color: #111; }
+.binom-x-axis {
+  font-size: 0.65rem;
+  color: #ccc;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  margin-top: 18px;
+  max-width: 640px;
+  text-align: center;
+}
+
+/* ── BINOM TWO-COLUMN LAYOUT ─────────────────────────────── */
+.binom-layout {
+  display: flex;
+  gap: 72px;
+  align-items: flex-start;
+}
+.binom-main { flex: 1; min-width: 0; }
+.binom-combos { flex-shrink: 0; padding-top: 4px; }
+.binom-combos-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 14px;
+}
+.binom-combos-label {
+  font-size: 0.68rem;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: #bbb;
+}
+.binom-combos-label .katex { font-size: 0.8rem; }
+.binom-combo-list { display: flex; flex-direction: column; gap: 4px; }
+.binom-combo-row {
+  display: flex;
+  gap: 3px;
+  font-size: 0.84rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  padding: 2px 0;
+}
+.bc-yes { color: #27ae60; }
+.bc-no  { color: #e74c3c; }
+
+/* ── PROBABILITY BAR ─────────────────────────────────────── */
+.prob-bar-outer {
+  display: flex;
+  height: 60px;
+  border-radius: 4px;
+  overflow: hidden;
+  max-width: 640px;
+  margin-top: 40px;
+}
+.prob-bar-success {
+  background: #27ae60;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: #fff;
+  min-width: 0;
+  transition: width 0.2s ease;
+}
+.prob-bar-fail {
+  background: #e74c3c;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: #fff;
+  min-width: 0;
+  transition: width 0.2s ease;
+}
+.prob-bar-labels {
+  display: flex;
+  justify-content: space-between;
+  max-width: 640px;
+  margin-top: 8px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: #bbb;
+}
+</style>
 </head>
 <body>
-  <!-- Portrait overlay -->
-  <div class="rotation-overlay">
-    <div class="phone-icon">📱</div>
-    <h1>Please Rotate Your Phone</h1>
-    <p>This game works best in landscape mode</p>
+
+<header>
+  <div class="header-left">
+    <div class="slider-row">
+      <span class="slider-lbl">n</span>
+      <input type="range" id="n-slider" min="0" max="7" value="3" oninput="onN(this.value)">
+      <span class="slider-val" id="n-val">3</span>
+    </div>
+    <div class="slider-row" id="k-row" style="opacity:1;pointer-events:auto;">
+      <span class="slider-lbl">k</span>
+      <input type="range" id="k-slider" min="0" max="6" value="3" oninput="onK(this.value)">
+      <span class="slider-val" id="k-val">3</span>
+    </div>
+    <div class="slider-row" id="p-row" style="opacity:0;pointer-events:none;">
+      <span class="slider-lbl" style="font-style:normal;font-size:0.9rem;">p</span>
+      <input type="range" id="p-slider" min="0" max="1" step="0.01" value="0.5" oninput="onP(this.value)">
+      <span class="slider-val" id="p-val">0.50</span>
+    </div>
   </div>
 
-  <div id="gameContainer" class="container">
-    <div class="left-section">
-      <h1>Catch the Point</h1>
-      <div id="gameTitle" class="game-title"></div>
-      <div id="message"></div>
+  <div class="header-center">
+    <div class="topic-row">
+      <button class="topic-btn active"  id="btn-fact"  onclick="setTopic('fact')">Factorial</button>
+      <button class="topic-btn"        id="btn-perm"  onclick="setTopic('perm')">Permutations</button>
+      <button class="topic-btn"        id="btn-comb"  onclick="setTopic('comb')">Combinations</button>
     </div>
-
-    <div class="center-section">
-      <canvas id="gameCanvas"></canvas>
+    <div class="topic-row topic-row-center">
+      <button class="topic-btn"        id="btn-dist"  onclick="setTopic('dist')">Binomial Dist.</button>
     </div>
+  </div>
 
-    <div class="right-section">
-      <!-- Top-right buttons (per your diagram) -->
-      <div class="controls">
-        <button onclick="resetGame()" class="game-button">Reset</button>
-        <button onclick="toggleMode()" id="modeBtn" class="game-button">Offense</button>
-        <button onclick="showInstructions()" class="game-button">Help</button>
+  <div class="header-right">
+    <button class="mode-btn active" id="btn-app" onclick="setMode('app')">Application</button>
+    <button class="mode-btn"        id="btn-thy" onclick="setMode('thy')">Theory</button>
+  </div>
+</header>
+
+<div class="content" id="content"></div>
+
+<script>
+// ── DATA ──────────────────────────────────────────────────────────────
+const COLORS  = ['#c0392b','#2980b9','#27ae60','#d35400','#8e44ad','#16a085','#b8860b','#2c3e50'];
+const LETTERS = ['A','B','C','D','E','F','G','H'];
+const NAMES   = ['Alice','Bob','Cate','David','Eve','Frank','Grace','Henry'];
+
+// ═════════════════════════════════════════════════════════════════════
+// PEOPLE-LINE GRAPHIC — simple, self-contained, easy to remove:
+// delete GENDERS, personFigureSvg(), ticketBoothSvg(), and
+// peopleLineGraphicHtml() here, its 4 call sites (search
+// "peopleLineGraphicHtml()"), and the "PEOPLE LINE GRAPHIC" CSS
+// block, and it's like it was never added.
+// Drag sources/targets: the colored circles AND the little figures share a position.
+const DRAG_TARGETS = '.people-line .person, .pg-person[data-pos]';
+const GENDERS = ['F','M','F','M','F','M','F','M']; // matches NAMES order
+function personFigureSvg(letterIdx, size, greyedOut) {
+  const color = greyedOut ? '#ccc' : COLORS[letterIdx];
+  const isFemale = GENDERS[letterIdx] === 'F';
+  const body = isFemale
+    ? `<path d="M19,27 Q27,22 35,27 L42,58 Q27,66 12,58 Z" fill="${color}"/>
+       <rect x="4"  y="30" width="8" height="18" rx="4" fill="${color}"/>
+       <rect x="42" y="30" width="8" height="18" rx="4" fill="${color}"/>
+       <ellipse cx="21" cy="63" rx="5" ry="4" fill="${color}"/>
+       <ellipse cx="33" cy="63" rx="5" ry="4" fill="${color}"/>`
+    : `<rect x="15" y="27" width="24" height="26" rx="10" fill="${color}"/>
+       <rect x="6"  y="30" width="8" height="20" rx="4" fill="${color}"/>
+       <rect x="40" y="30" width="8" height="20" rx="4" fill="${color}"/>
+       <rect x="16" y="50" width="9" height="18" rx="4.5" fill="${color}"/>
+       <rect x="29" y="50" width="9" height="18" rx="4.5" fill="${color}"/>`;
+  return `<svg width="${size}" height="${size*70/54}" viewBox="0 0 54 70">
+    ${body}
+    <circle cx="27" cy="15" r="11" fill="${color}"/>
+    <circle cx="23" cy="14" r="1.6" fill="#fff"/>
+    <circle cx="31" cy="14" r="1.6" fill="#fff"/>
+  </svg>`;
+}
+function ticketBoothSvg(size) {
+  return `<svg width="${size}" height="${size*70/54}" viewBox="0 0 54 70">
+    <path d="M2,22 L52,22 L47,9 L7,9 Z" fill="#e63946"/>
+    <rect x="2"  y="17" width="12.5" height="6" fill="#fff"/>
+    <rect x="27" y="17" width="12.5" height="6" fill="#fff"/>
+    <rect x="6" y="22" width="42" height="40" rx="3" fill="#8d6e63"/>
+    <rect x="13" y="29" width="28" height="18" rx="2" fill="#bde0fe"/>
+    <rect x="10" y="48" width="34" height="5" rx="1" fill="#6d4c41"/>
+    <text x="27" y="60" font-size="7" text-anchor="middle" fill="#fff" font-weight="700" font-family="sans-serif">TICKETS</text>
+  </svg>`;
+}
+// Permutations ticket tiers for the chosen (front-of-line) people, ranked
+// best to worst — order matters there, so each rank gets its own tier.
+const TICKET_TIERS = [
+  { label: 'GOLD',               bg: '#ffd700', fg: '#5c4a00' },
+  { label: 'SILVER',             bg: '#c0c0c0', fg: '#333' },
+  { label: 'BRONZE',             bg: '#cd7f32', fg: '#fff' },
+  { label: 'PLATINUM',           bg: '#cfd8dc', fg: '#333' },
+  { label: 'VIP',                bg: '#7b2cbf', fg: '#fff' },
+  { label: 'PREMIUM',            bg: '#263859', fg: '#fff' },
+  { label: 'FREE',               bg: '#43a047', fg: '#fff' },
+  { label: 'GENERAL ADMISSION',  bg: '#9e9e9e', fg: '#fff' },
+];
+
+function peopleLineGraphicHtml() {
+  // The booth always shows, even with n=0 (no one in line yet).
+  const booth = `
+    <div class="pg-person">
+      ${ticketBoothSvg(84)}
+      <div class="pg-label" style="color:#8d6e63">BOOTH</div>
+    </div>`;
+
+  // Binomial Distribution: fixed positions (no peopleOrder there), badge
+  // is a green check / red X for success vs fail instead of a ticket.
+  if (topic === 'dist') {
+    const figures = Array.from({length:n}, (_, pos) => {
+      const ok = personSuccessStates[pos];
+      const badge = `<div class="pg-medal" style="background:${ok?'#27ae60':'#e74c3c'};color:#fff">${ok?'&#10003;':'&#10007;'}</div>`;
+      return `
+      <div class="pg-person" data-pos="${pos}" onclick="onDistSingleClick(${pos})" ondblclick="onDistToggle(${pos})"
+        onpointerdown="onDistIndicatorDown(event,${pos})" onmouseover="onLetterHover(${pos})" onmouseout="onLetterOut()">
+        ${badge}
+        ${personFigureSvg(pos, 84, false)}
+        <div class="pg-label" style="color:${COLORS[pos]}">${LETTERS[pos]}</div>
+      </div>`;
+    }).join('');
+    return `<div class="people-graphic pg-center">${booth}${figures}</div>`;
+  }
+
+  // Factorial/Permutations/Combinations: ordered by peopleOrder.
+  // Permutations — order matters — gets the full ranked ticket tiers.
+  // Combinations just gets a plain "FREE" badge for the chosen k (no
+  // ranking, since order doesn't matter there). Whoever isn't chosen
+  // (the tail) shows up grey, badge-less, on both.
+  const showSelection = topic === 'perm' || topic === 'comb';
+  const figures = peopleOrder.map((pi, pos) => {
+    const greyed = showSelection && pos >= k;
+    const labelColor = greyed ? '#ccc' : COLORS[pi];
+    let badge = `<div class="pg-medal pg-medal-empty"></div>`;
+    if (topic === 'perm' && pos < k) {
+      const tier = TICKET_TIERS[pos] || TICKET_TIERS[TICKET_TIERS.length-1];
+      badge = `<div class="pg-medal" style="background:${tier.bg};color:${tier.fg}">${tier.label}</div>`;
+    } else if (topic === 'comb' && pos < k) {
+      badge = `<div class="pg-medal" style="background:#43a047;color:#fff">FREE</div>`;
+    }
+    return `
+    <div class="pg-person" data-pos="${pos}" onpointerdown="onPersonPointerDown(event,${pos})">
+      ${badge}
+      ${personFigureSvg(pi, 84, greyed)}
+      <div class="pg-label" style="color:${labelColor}">${LETTERS[pi]}</div>
+    </div>`;
+  }).join('');
+  return `<div class="people-graphic">${booth}${figures}</div>`;
+}
+// ═════════════════════════════════════════════════════════════════════
+
+// ── STATE ─────────────────────────────────────────────────────────────
+let topic = 'fact', mode = 'app', zoom = 1.5;
+let n = 3, k = 0, binomp = 0.5;
+let _showAllOn = true;
+let _permCombVisited = false; // n=5,k=3 the first time either is visited
+let _distVisited = false;     // n=5,k=3 the first time it's visited
+let peopleOrder = Array.from({length:n}, (_, i) => i);
+let personSuccessStates = Array.from({length:n}, (_, i) => i < k);
+let dragSrcPos = -1;
+let _arrSimple='', _arrFull='', _defSimple='', _defFull='';
+let _totalSimple=0, _totalFull=0, _uniqueFull=0;
+
+// ── MATH ─────────────────────────────────────────────────────────────
+const K   = s => { try { return katex.renderToString(s,{throwOnError:false,output:'html'}); } catch(e){return s;} };
+const fac = n => n <= 1 ? 1 : n * fac(n-1);
+const Pnk = (n,k) => Array.from({length:k},(_,i)=>n-i).reduce((a,b)=>a*b,1);
+const Cnk = (n,k) => Math.round(Pnk(n,k)/fac(k));
+
+function rgba(hex, a) {
+  const r=parseInt(hex.slice(1,3),16), g=parseInt(hex.slice(3,5),16), b=parseInt(hex.slice(5,7),16);
+  return `rgba(${r},${g},${b},${a})`;
+}
+
+// ── COMBINATORICS ─────────────────────────────────────────────────────
+function permsFull(arr) {
+  if (arr.length <= 1) return [arr.slice()];
+  const out = [];
+  arr.forEach((v,i) => permsFull(arr.filter((_,j)=>j!==i)).forEach(p => out.push([v,...p])));
+  return out;
+}
+function combsK(arr, k) {
+  if (k===0) return [[]];
+  if (!arr.length) return [];
+  const [h,...t] = arr;
+  return [...combsK(t,k-1).map(c=>[h,...c]),...combsK(t,k)];
+}
+const isSorted = a => a.every((v,i)=>i===0||v>=a[i-1]);
+
+// Balanced grid dims for N items: the divisor pair of N closest to a
+// square (e.g. 10 -> {rows:2, cols:5}, matching a real 5x2/2x5 grid
+// instead of however many happen to fit per line at the current width).
+function bestGridDims(N) {
+  if (N <= 1) return { rows: 1, cols: Math.max(N, 1) };
+  for (let r = Math.floor(Math.sqrt(N)); r >= 1; r--) {
+    if (N % r === 0) return { rows: r, cols: N / r };
+  }
+  return { rows: 1, cols: N };
+}
+
+// ── SLIDERS ───────────────────────────────────────────────────────────
+function resetPeopleOrder() {
+  peopleOrder = Array.from({length:n}, (_, i) => i);
+}
+function resetPersonSuccessStates() {
+  personSuccessStates = Array.from({length:n}, (_, i) => i < k);
+}
+
+function onN(val) {
+  n = +val;
+  resetPeopleOrder();
+  resetPersonSuccessStates();
+  const kMin = 0;
+  k = Math.max(kMin, Math.min(k, n));
+  document.getElementById('n-val').textContent = n;
+  document.getElementById('k-slider').min = kMin;
+  document.getElementById('k-slider').max = n;
+  document.getElementById('k-slider').value = k;
+  document.getElementById('k-val').textContent = k;
+  render();
+}
+function onK(val) {
+  k = +val;
+  document.getElementById('k-slider').value = k;
+  document.getElementById('k-val').textContent = k;
+  resetPersonSuccessStates();
+  render();
+}
+function onP(val) {
+  binomp = +val;
+  document.getElementById('p-val').textContent = binomp.toFixed(2);
+  render();
+}
+
+// ── SHOW ALL ──────────────────────────────────────────────────────────
+function _syncShowAll() {
+  if (!_showAllOn) return;
+  const btn  = document.querySelector('.show-all-btn');
+  const cols = document.getElementById('arr-cols');
+  const def  = document.getElementById('arr-def');
+  const tot  = document.getElementById('arr-total');
+  const uniq = document.getElementById('arr-unique');
+  if (btn)  btn.classList.add('active');
+  if (cols) cols.innerHTML = _arrFull;
+  if (def)  def.innerHTML  = _defFull;
+  if (tot)  tot.textContent = _totalFull + ' total';
+  if (uniq) uniq.textContent = _uniqueFull ? '· ' + _uniqueFull + ' unique' : '';
+}
+
+function onShowAllToggle() {
+  _showAllOn = !_showAllOn;
+  const btn  = document.querySelector('.show-all-btn');
+  const cols = document.getElementById('arr-cols');
+  const def  = document.getElementById('arr-def');
+  const tot  = document.getElementById('arr-total');
+  const uniq = document.getElementById('arr-unique');
+  if (btn)  btn.classList.toggle('active', _showAllOn);
+  if (_showAllOn) {
+    if (cols) cols.innerHTML = _arrFull;
+    if (def)  def.innerHTML  = _defFull;
+    if (tot)  tot.textContent = _totalFull + ' total';
+    if (uniq) uniq.textContent = _uniqueFull ? '· ' + _uniqueFull + ' unique' : '';
+  } else {
+    if (cols) cols.innerHTML = _arrSimple;
+    if (def)  def.innerHTML  = _defSimple;
+    if (tot)  tot.textContent = _totalSimple + ' total';
+    if (uniq) uniq.textContent = '';
+  }
+}
+
+// ── TOPIC / MODE ──────────────────────────────────────────────────────
+function setTopic(t) {
+  topic = t;
+  if (!_permCombVisited && (t === 'perm' || t === 'comb')) {
+    _permCombVisited = true;
+    n = 5; k = 3;
+  }
+  if (!_distVisited && t === 'dist') {
+    _distVisited = true;
+    n = 5; k = 3;
+  }
+  resetPeopleOrder();
+  resetPersonSuccessStates();
+  document.querySelectorAll('.topic-btn').forEach(b=>b.classList.remove('active'));
+  document.getElementById('btn-'+t).classList.add('active');
+  const showK = t !== 'fact';
+  const showP = t === 'binom' || t === 'dist';
+  const kr = document.getElementById('k-row');
+  const pr = document.getElementById('p-row');
+  kr.style.opacity = showK ? '1' : '0';
+  kr.style.pointerEvents = showK ? 'auto' : 'none';
+  pr.style.opacity = showP ? '1' : '0';
+  pr.style.pointerEvents = showP ? 'auto' : 'none';
+  // n/k are shared across every tab — keep both sliders' visible
+  // position in sync with the actual state on every switch, not just k.
+  document.getElementById('n-slider').value = n;
+  document.getElementById('n-val').textContent = n;
+  const kSlider = document.getElementById('k-slider');
+  kSlider.min = 0;
+  kSlider.max = n;
+  k = Math.min(k, n);
+  kSlider.value = k;
+  document.getElementById('k-val').textContent = k;
+  render();
+}
+function setMode(m) {
+  mode = m;
+  document.getElementById('btn-app').classList.toggle('active', m==='app');
+  document.getElementById('btn-thy').classList.toggle('active', m==='thy');
+  render();
+}
+
+// ── ZOOM ─────────────────────────────────────────────────────────────
+function adjustZoom(delta) {
+  zoom = Math.max(0.2, Math.min(3.0, +(zoom+delta).toFixed(1)));
+  document.querySelectorAll('.zoom-level').forEach(el => el.textContent = Math.round(zoom*100)+'%');
+  document.querySelectorAll('.arr-item').forEach(el => el.style.fontSize=(zoom*1.344)+'rem');
+  document.querySelectorAll('.arr-col-head').forEach(el => el.style.fontSize=(zoom*1.12)+'rem');
+  document.querySelectorAll('.binom-combo-row').forEach(el => el.style.fontSize=(zoom*1.344)+'rem');
+}
+
+// ── HELPERS ───────────────────────────────────────────────────────────
+function colSizeClass() {
+  return '';
+}
+
+// ── SHARED ────────────────────────────────────────────────────────────
+function arrHeaderHtml(totalLabel, uniqueLabel, withShowAll) {
+  const saBtn = withShowAll
+    ? `<button class="show-all-btn ${_showAllOn ? 'active' : ''}" onclick="onShowAllToggle()">Show all</button>`
+    : '';
+  const ids = withShowAll ? ' id="arr-total"' : '';
+  const uniqId = withShowAll ? ' id="arr-unique"' : '';
+  return `<div class="arr-header">
+    <div class="arr-header-left">
+      <span class="arr-label">Arrangements</span>
+      <span class="arr-total"${ids}>${totalLabel} total</span>
+      ${uniqueLabel ? `<span class="arr-unique"${uniqId}>· ${uniqueLabel} unique</span>` : (withShowAll ? `<span class="arr-unique"${uniqId}></span>` : '')}
+    </div>
+    <div class="zoom-ctrl">
+      ${saBtn}
+      <button class="zoom-btn" onclick="adjustZoom(-0.1)">−</button>
+      <span class="zoom-level">${Math.round(zoom*100)}%</span>
+      <button class="zoom-btn" onclick="adjustZoom(+0.1)">+</button>
+    </div>
+  </div>`;
+}
+
+function peopleHtml(hoverable) {
+  while (peopleOrder.length < n) peopleOrder.push(peopleOrder.length);
+  if (peopleOrder.length > n) peopleOrder = peopleOrder.slice(0, n);
+  return peopleOrder.map((pi, pos) => `
+    <div class="person" data-pos="${pos}"
+      onpointerdown="onPersonPointerDown(event,${pos})"
+      ${hoverable?`onmouseover="onLetterHover(${pos})" onmouseout="onLetterOut()"`:''}>
+      <div class="person-name" style="color:${COLORS[pi]}">${NAMES[pi]}</div>
+      <div class="person-circle" style="background:${COLORS[pi]}">${LETTERS[pi]}</div>
+      <div class="person-pos"></div>
+    </div>`).join('');
+}
+
+// ── CANONICAL FLAGS ────────────────────────────────────────────────────
+// For permutations: canonical = last (n-k) elements are sorted
+// For combinations: canonical = first k sorted AND last (n-k) sorted
+function tagPerms(type) {
+  const all = permsFull(Array.from({length:n},(_,i)=>i));
+  return all.map(perm => {
+    const head = perm.slice(0,k), tail = perm.slice(k);
+    const isCanon = type === 'comb'
+      ? isSorted(head) && isSorted(tail)
+      : isSorted(tail); // perm: tail sorted → this is the "canonical" rep for this k-prefix
+    return { perm, head, tail, isCanon };
+  });
+}
+
+// Default view: canonical items only, no box, no grey
+function buildColumnsSimple(tagged, renderFn, colHeadFn) {
+  return Array.from({length:n}, (_,gi) => {
+    const bright = tagged.filter(d => d.perm[0]===gi && d.isCanon);
+    const items  = bright.map(d => renderFn(d, false)).join('');
+    return `<div class="arr-col">
+      <div class="arr-col-head">${colHeadFn(gi)}</div>
+      ${items}
+    </div>`;
+  }).join('');
+}
+
+// Show-all view: canonical outlined at top, grey duplicates below
+function buildColumns(tagged, renderFn, colHeadFn) {
+  return Array.from({length:n}, (_,gi) => {
+    const grp    = tagged.filter(d => d.perm[0] === gi);
+    const bright = grp.filter(d => d.isCanon);
+    const grey   = grp.filter(d => !d.isCanon);
+    const brightHtml = bright.map(d => renderFn(d, false)).join('');
+    const greyHtml   = grey.map(d => renderFn(d, true)).join('');
+    const canonGroup = bright.length > 0
+      ? `<div class="canon-group">${brightHtml}</div>`
+      : '';
+    return `<div class="arr-col">
+      <div class="arr-col-head">${colHeadFn(gi)}</div>
+      ${canonGroup}${greyHtml}
+    </div>`;
+  }).join('');
+}
+
+// Show-all for permutations: one box per unique k-prefix, tails listed inside
+function buildColumnsPerm(tagged) {
+  const sc = colSizeClass();
+  return Array.from({length:n}, (_,gi) => {
+    const col = tagged.filter(d => d.perm[0] === gi);
+    // group by k-prefix key
+    const map = new Map();
+    col.forEach(d => {
+      const key = d.head.join(',');
+      if (!map.has(key)) map.set(key, []);
+      map.get(key).push(d);
+    });
+    // sort groups by k-prefix lex, tails within each group lex
+    const groups = [...map.entries()]
+      .sort(([a],[b]) => a < b ? -1 : 1)
+      .map(([,items]) => items.sort((a,b) => a.tail.join(',') < b.tail.join(',') ? -1 : 1));
+
+    const boxes = groups.map(items => {
+      const canon = items.find(d => d.isCanon) || items[0];
+      const copies = items.filter(d => d !== canon);
+      const colored = canon.head.map(i=>`<span style="color:${COLORS[i]}">${LETTERS[i]}</span>`).join('');
+      const muted   = canon.tail.map(i=>`<span style="color:#ccc;font-weight:400">${LETTERS[i]}</span>`).join('');
+      const canonRow = `<div class="arr-item">${colored}${muted}</div>`;
+      // A box is ONE unique lineup — only its one canonical row should
+      // carry color. Every other row is just proof of the (n-k)! redundant
+      // copies being cancelled, so it stays fully grey, head included.
+      const greyRows = copies.map(d => {
+        const letters = d.perm.map(i=>`<span style="color:#ccc">${LETTERS[i]}</span>`).join('');
+        return `<div class="arr-item dim">${letters}</div>`;
+      }).join('');
+      return `<div class="canon-group">${canonRow}${greyRows}</div>`;
+    }).join('');
+
+    return `<div class="arr-col">
+      <div class="arr-col-head"><span style="color:${COLORS[gi]}">${LETTERS[gi]}…</span></div>
+      ${boxes}
+    </div>`;
+  }).join('');
+}
+
+// Show-all for combinations: one box per unique k-subset, copies grey
+// inside. No per-letter columns — a subset like {A,B} has no single
+// "home" letter, so splitting into A/B/C/... columns was always artificial.
+// Instead every box is laid out in one flowing, auto-wrapping sequence,
+// in natural combination order (AB, AC, AD, BC, ...).
+function buildColumnsComb(tagged) {
+  const map = new Map();
+  tagged.forEach(d => {
+    const key = [...d.head].sort((a,b)=>a-b).join(',');
+    if (!map.has(key)) map.set(key, []);
+    map.get(key).push(d);
+  });
+
+  const boxes = [...map.entries()]
+    .sort(([a],[b]) => a < b ? -1 : 1)
+    .map(([,items]) => {
+      const canon  = items.find(d => d.isCanon) || items[0];
+      const copies = items.filter(d => d !== canon);
+      const colored  = canon.head.map(i=>`<span style="color:${COLORS[i]}">${LETTERS[i]}</span>`).join('');
+      const muted    = canon.tail.map(i=>`<span style="color:#ccc;font-weight:400">${LETTERS[i]}</span>`).join('');
+      const canonRow = `<div class="arr-item">${colored}${muted}</div>`;
+      const greyRows = copies.map(d => {
+        const letters = d.perm.map(i=>`<span style="color:#ccc">${LETTERS[i]}</span>`).join('');
+        return `<div class="arr-item dim">${letters}</div>`;
+      }).join('');
+      return `<div class="canon-group">${canonRow}${greyRows}</div>`;
+    }).join('');
+
+  const { cols } = bestGridDims(map.size);
+  return `<div class="comb-flow" style="grid-template-columns:repeat(${cols},minmax(120px,1fr));">${boxes}</div>`;
+}
+
+// Show-all for combinations: C(n,k) black boxes
+// Each box = k! rows (orderings of chosen k) × (n-k)! cols (orderings of remaining)
+// Only the very first cell is colored
+function buildGridComb(tagged) {
+  // Collect unique subsets
+  const seen = new Set();
+  const subsets = [];
+  tagged.forEach(d => {
+    const key = [...d.head].sort((a,b)=>a-b).join(',');
+    if (!seen.has(key)) { seen.add(key); subsets.push(key); }
+  });
+  subsets.sort();
+
+  const all = Array.from({length:n}, (_,i)=>i);
+
+  const boxes = subsets.map(key => {
+    const subsetIdx = key.split(',').map(Number);
+    const remaining = all.filter(i => !subsetIdx.includes(i));
+
+    // k! orderings of chosen subset → ROWS
+    const headPerms = permsFull(subsetIdx).sort((a,b)=>a.join(',')< b.join(',') ? -1:1);
+    // (n-k)! orderings of remaining → COLUMNS
+    const tailPerms = permsFull(remaining).sort((a,b)=>a.join(',')< b.join(',') ? -1:1);
+
+    let firstCell = true;
+    const gridRows = tailPerms.map(tail => {
+      const cells = headPerms.map(head => {
+        let html;
+        if (firstCell) {
+          const colored = head.map(i=>`<span style="color:${COLORS[i]}">${LETTERS[i]}</span>`).join('');
+          const muted   = tail.map(i=>`<span style="color:#ccc;font-weight:400">${LETTERS[i]}</span>`).join('');
+          html = `<div class="arr-item">${colored}${muted}</div>`;
+          firstCell = false;
+        } else {
+          const letters = [...head,...tail].map(i=>`<span style="color:#ccc">${LETTERS[i]}</span>`).join('');
+          html = `<div class="arr-item dim">${letters}</div>`;
+        }
+        return html;
+      }).join('');
+      return `<div class="comb-grid-row">${cells}</div>`;
+    }).join('');
+
+    const label = '{ ' + subsetIdx.map(i =>
+      `<span style="color:${COLORS[i]}">${LETTERS[i]}</span>`
+    ).join(', ') + ' }';
+
+    return `<div class="comb-box"><div class="comb-box-label">${label}</div>${gridRows}</div>`;
+  }).join('');
+
+  return `<div class="comb-boxes">${boxes}</div>`;
+}
+
+// ── RENDER ────────────────────────────────────────────────────────────
+function highlightCurrentArrangement() {
+  const fullTarget = peopleOrder.map(i => LETTERS[i]).join('');
+  document.querySelectorAll('.arr-item').forEach(el => {
+    const txt = el.textContent.trim().replace(/\s+/g, '');
+    // match full arrangement OR the leading k letters (for perm/comb short view)
+    const match = txt === fullTarget || (k > 0 && txt === fullTarget.slice(0, k));
+    el.classList.toggle('arr-item-current', match);
+  });
+}
+
+function render() {
+  if      (topic==='dist')  renderDist();
+  else if (topic==='fact')  renderFact();
+  else if (topic==='perm')  renderPerm();
+  else                      renderComb();
+  _syncShowAll();
+  adjustZoom(0);
+  highlightCurrentArrangement();
+}
+
+// ════════════════════════════════════════════════════════════════════
+//  DISTRIBUTION (one specific ordered outcome)
+// ════════════════════════════════════════════════════════════════════
+function buildProbSquareSVG(p, pd, qd, highlightAll, svgId, S=300) {
+  const F = `font-family="Inter,sans-serif"`;
+  const target = Array.from({length: n}, (_, i) => i < k ? 1 : 0);
+  // The one cell matching the actual dragged order of colors above
+  // (not just "first k succeed") gets a bold black outline.
+  const showCurrent = mode === 'app' && personSuccessStates.length === n;
+  const currentBits = showCurrent ? personSuccessStates.map(b=>b?1:0).join('') : null;
+
+  function rng(bits) {
+    let lo = 0, hi = 1;
+    for (const b of bits) {
+      const w = hi - lo;
+      if (b === 1) hi = lo + p * w;
+      else         lo = lo + p * w;
+    }
+    return [lo, hi];
+  }
+
+  let rects = '';
+  for (let i = 0; i < (1 << n); i++) {
+    const bits  = Array.from({length: n}, (_, j) => (i >> (n - 1 - j)) & 1);
+    const xBits = bits.filter((_, j) => j % 2 === 0);
+    const yBits = bits.filter((_, j) => j % 2 === 1);
+    const [xLo, xHi] = rng(xBits);
+    const [yLo, yHi] = yBits.length ? rng(yBits) : [0, 1];
+    const isTarget = highlightAll
+      ? bits.filter(b => b === 1).length === k
+      : bits.every((b, j) => b === target[j]);
+    const rx = (xLo * S).toFixed(2);
+    const ry = ((1 - yHi) * S).toFixed(2);
+    const rw = ((xHi - xLo) * S).toFixed(2);
+    const rh = ((yHi - yLo) * S).toFixed(2);
+    if (+rw < 0.3 || +rh < 0.3) continue;
+    const ones      = bits.filter(b => b === 1).length;
+    const area      = Math.pow(p, ones) * Math.pow(1 - p, n - ones);
+    const areaStr   = area < 0.0001 ? area.toExponential(3) : area.toFixed(4);
+    const bitsStr   = bits.join('');
+    const isCurrent = showCurrent && bitsStr === currentBits;
+    const origStroke = isCurrent ? '#111' : isTarget ? '#3498db' : '#e5e5e5';
+    const origSw     = isCurrent ? '3' : isTarget ? '1.5' : '0.5';
+    rects += `<rect x="${rx}" y="${ry}" width="${rw}" height="${rh}"
+      fill="${isTarget ? 'rgba(52,152,219,0.22)' : 'rgba(0,0,0,0.015)'}"
+      stroke="${origStroke}" stroke-width="${origSw}"
+      data-bits="${bitsStr}" data-orig-stroke="${origStroke}" data-orig-sw="${origSw}"
+      onmouseover="onCellHover('${bitsStr}')" onmouseout="onCellOut()" onclick="onCellClick('${bitsStr}')"
+      style="cursor:pointer;"><title>Area = ${areaStr}</title></rect>`;
+  }
+
+  const xPx = (p * S).toFixed(1);
+  const yPx = ((1 - p) * S).toFixed(1);
+  const PAD = 20;
+  const dividers = `
+    <line x1="${xPx}" y1="0" x2="${xPx}" y2="${S}" stroke="#555" stroke-width="1" stroke-dasharray="4,3"/>
+    ${n >= 2 ? `<line x1="0" y1="${yPx}" x2="${S}" y2="${yPx}" stroke="#555" stroke-width="1" stroke-dasharray="4,3"/>` : ''}
+    <text x="${(+xPx/2).toFixed(1)}" y="${S+PAD-3}" text-anchor="middle" font-size="11" fill="#27ae60" font-weight="700" ${F}>p=${pd}</text>
+    <text x="${((+xPx+S)/2).toFixed(1)}" y="${S+PAD-3}" text-anchor="middle" font-size="11" fill="#e74c3c" font-weight="700" ${F}>q=${qd}</text>`;
+
+  return `<svg id="${svgId}" width="${S}" height="${S+PAD}" viewBox="0 0 ${S} ${S+PAD}"
+    style="display:block;" ${F}>
+    ${rects}
+    <rect x="0" y="0" width="${S}" height="${S}" fill="none" stroke="#bbb" stroke-width="2"/>
+    ${dividers}
+  </svg>`;
+}
+
+function onLetterHover(letterIdx) {
+  if (topic === 'dist' && _distHoverSuppressed) return;
+  const p         = binomp;
+  const isSuccess = topic === 'dist'
+    ? (personSuccessStates[letterIdx] === true)
+    : letterIdx < k;
+  const fillColor   = isSuccess ? 'rgba(39,174,96,0.38)' : 'rgba(231,76,60,0.38)';
+  const strokeColor = isSuccess ? '#27ae60' : '#e74c3c';
+
+  function rng(bits) {
+    let lo = 0, hi = 1;
+    for (const b of bits) {
+      const w = hi - lo;
+      if (b === 1) hi = lo + p * w; else lo = lo + p * w;
+    }
+    return [lo, hi];
+  }
+
+  ['prob-svg-1', 'prob-svg-2'].forEach(svgId => {
+    const svg = document.getElementById(svgId);
+    if (!svg) return;
+    const PS = +svg.getAttribute('width') || 300;
+    svg.querySelectorAll('.hover-overlay').forEach(el => el.remove());
+
+    const stripes = [];
+    if (letterIdx % 2 === 0) {
+      const j = letterIdx / 2;
+      for (let mask = 0; mask < (1 << j); mask++) {
+        const prevBits = Array.from({length: j}, (_, l) => (mask >> (j-1-l)) & 1);
+        const [zLo, zHi] = rng(prevBits);
+        const w = zHi - zLo;
+        if (isSuccess) stripes.push({rx: zLo*PS,       ry: 0, rw: p*w*PS,     rh: PS});
+        else           stripes.push({rx: (zLo+p*w)*PS, ry: 0, rw: (1-p)*w*PS, rh: PS});
+      }
+    } else {
+      const j = Math.floor(letterIdx / 2);
+      for (let mask = 0; mask < (1 << j); mask++) {
+        const prevBits = Array.from({length: j}, (_, l) => (mask >> (j-1-l)) & 1);
+        const [zLo, zHi] = rng(prevBits);
+        const w = zHi - zLo;
+        if (isSuccess) stripes.push({rx: 0, ry: (1-zLo-p*w)*PS, rw: PS, rh: p*w*PS});
+        else           stripes.push({rx: 0, ry: (1-zHi)*PS,      rw: PS, rh: (1-p)*w*PS});
+      }
+    }
+
+    stripes.forEach(({rx, ry, rw, rh}) => {
+      if (rw < 0.5 || rh < 0.5) return;
+      const ov = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+      ov.setAttribute('class', 'hover-overlay');
+      ov.setAttribute('fill', fillColor);
+      ov.setAttribute('stroke', strokeColor);
+      ov.setAttribute('stroke-width', '1.5');
+      ov.setAttribute('pointer-events', 'none');
+      ov.setAttribute('x', rx.toFixed(1));
+      ov.setAttribute('y', ry.toFixed(1));
+      ov.setAttribute('width', rw.toFixed(1));
+      ov.setAttribute('height', rh.toFixed(1));
+      svg.appendChild(ov);
+    });
+  });
+
+  const lbl = document.getElementById('hover-label');
+  if (lbl) lbl.textContent = isSuccess
+    ? `${NAMES[letterIdx]} succeeds — p = ${binomp.toFixed(2)}`
+    : `${NAMES[letterIdx]} fails — q = ${(1-binomp).toFixed(2)}`;
+}
+
+function onLetterOut() {
+  ['prob-svg-1', 'prob-svg-2'].forEach(svgId => {
+    const svg = document.getElementById(svgId);
+    if (!svg) return;
+    svg.querySelectorAll('.hover-overlay').forEach(el => el.remove());
+  });
+  const lbl = document.getElementById('hover-label');
+  if (lbl) lbl.textContent = '';
+}
+
+const onesIn = s => (s.match(/1/g) || []).length;
+
+// Hovering a probability-space cell greys the arrangement row it belongs to
+// (only visible when that cell's success count matches the listed k).
+function onCellHover(bits) {
+  document.querySelectorAll('.binom-combo-row').forEach(row =>
+    row.classList.toggle('cell-hover-row', row.getAttribute('data-bits') === bits));
+}
+function onCellOut() {
+  document.querySelectorAll('.cell-hover-row').forEach(r => r.classList.remove('cell-hover-row'));
+}
+// Clicking a cell makes it THE current arrangement: people, k, and the
+// whole screen update, and that cell gets the black outline.
+function onCellClick(bits) {
+  personSuccessStates = bits.split('').map(c => c === '1');
+  k = onesIn(bits);
+  document.getElementById('k-slider').value = k;
+  document.getElementById('k-val').textContent = k;
+  render();
+}
+
+let _dragClone = null, _dragSrcEl = null, _dragOffX = 0, _dragOffY = 0, _dragRaf = null, _dragPrevX = 0;
+
+function onPersonPointerDown(event, pos) {
+  if (event.button !== undefined && event.button !== 0) return;
+  event.preventDefault();
+  dragSrcPos = pos;
+  _dragSrcEl = event.currentTarget;
+  const rect = _dragSrcEl.getBoundingClientRect();
+  _dragOffX = event.clientX - rect.left;
+  _dragOffY = event.clientY - rect.top;
+  _dragPrevX = event.clientX;
+
+  // Highlight arr-items
+  const pi = peopleOrder[pos];
+  const letter = LETTERS[pi];
+  const isSuccess = pos < k;
+  document.querySelectorAll('.arr-item').forEach(el => {
+    if (el.textContent.trim() === letter)
+      el.classList.add('drag-hl', isSuccess ? 'drag-hl-green' : 'drag-hl-red');
+  });
+  document.querySelectorAll('.binom-combo-row').forEach(el => {
+    if (el.textContent.includes(letter))
+      el.classList.add('drag-hl', isSuccess ? 'drag-hl-green' : 'drag-hl-red');
+  });
+
+  // Floating clone — pinned to top-left, moved via transform (GPU layer)
+  _dragClone = document.createElement('div');
+  _dragClone.id = 'drag-clone';
+  _dragClone.innerHTML = _dragSrcEl.innerHTML;
+  _dragClone.style.width = rect.width + 'px';
+  _dragClone.style.transform = `translate3d(${rect.left}px,${rect.top}px,0) scale(1.13) rotate(-3deg)`;
+  document.body.appendChild(_dragClone);
+
+  _dragSrcEl.classList.add('drag-src');
+
+  document.addEventListener('pointermove', _onDragMove, {passive: false});
+  document.addEventListener('pointerup',   _onDragUp);
+  document.addEventListener('pointercancel', _onDragUp);
+}
+
+function _onDragMove(event) {
+  if (!_dragClone) return;
+  event.preventDefault();
+  const cx = event.clientX, cy = event.clientY;
+  // Synchronous, not rAF-deferred — see note on _onDistMove.
+  const x = cx - _dragOffX, y = cy - _dragOffY;
+  const dx2 = cx - _dragPrevX; _dragPrevX = cx;
+  const tilt = Math.max(-14, Math.min(14, dx2 * 1.1));
+  _dragClone.style.transform = `translate3d(${x}px,${y}px,0) scale(1.13) rotate(${tilt}deg)`;
+  document.querySelectorAll(DRAG_TARGETS).forEach(el => {
+    if (el === _dragSrcEl) return;
+    const r = el.getBoundingClientRect();
+    el.classList.toggle('drag-over',
+      cx >= r.left && cx <= r.right && cy >= r.top && cy <= r.bottom);
+  });
+}
+
+function _onDragUp(event) {
+  document.removeEventListener('pointermove', _onDragMove);
+  document.removeEventListener('pointerup',   _onDragUp);
+  document.removeEventListener('pointercancel', _onDragUp);
+
+  let targetPos = -1;
+  document.querySelectorAll(DRAG_TARGETS).forEach((el) => {
+    if (el.classList.contains('drag-over')) targetPos = +el.dataset.pos;
+    el.classList.remove('drag-over', 'drag-src');
+  });
+
+  if (_dragClone) { _dragClone.remove(); _dragClone = null; }
+  if (_dragSrcEl) { _dragSrcEl.classList.remove('drag-src'); _dragSrcEl = null; }
+
+  document.querySelectorAll('.drag-hl, .drag-hl-green, .drag-hl-red').forEach(el =>
+    el.classList.remove('drag-hl', 'drag-hl-green', 'drag-hl-red'));
+
+  if (targetPos !== -1 && dragSrcPos !== -1 && targetPos !== dragSrcPos) {
+    const tmp = peopleOrder[dragSrcPos];
+    peopleOrder[dragSrcPos] = peopleOrder[targetPos];
+    peopleOrder[targetPos] = tmp;
+    render();
+  }
+  dragSrcPos = -1;
+}
+
+// ── DIST PEOPLE ────────────────────────────────────────────────────────
+function distPeopleHtml() {
+  while (personSuccessStates.length < n) personSuccessStates.push(false);
+  if (personSuccessStates.length > n) personSuccessStates = personSuccessStates.slice(0, n);
+  return Array.from({length: n}, (_, pos) => {
+    const ok = personSuccessStates[pos];
+    const color = ok ? '#27ae60' : '#e74c3c';
+    return `<div class="person" data-pos="${pos}" style="cursor:pointer;"
+      onclick="onDistSingleClick(${pos})" ondblclick="onDistToggle(${pos})"
+      onpointerdown="onDistIndicatorDown(event,${pos})"
+      onmouseover="onLetterHover(${pos})" onmouseout="onLetterOut()">
+      <div class="person-name" style="color:${color}">${NAMES[pos]}</div>
+      <div class="person-circle" style="background:${color}">${LETTERS[pos]}</div>
+      <div class="person-pos"></div>
+    </div>`;
+  }).join('');
+}
+
+// Suppresses the hover preview (green/red stripes in the probability
+// space) once a drag starts. A single click toggles it back on/off without
+// changing any color; a double-click is what actually flips the color.
+let _distHoverSuppressed = false;
+
+function onDistSingleClick(pos) {
+  _distHoverSuppressed = !_distHoverSuppressed;
+  if (_distHoverSuppressed) onLetterOut();
+  else onLetterHover(pos);
+}
+
+function onDistToggle(pos) {
+  personSuccessStates[pos] = !personSuccessStates[pos];
+  k = personSuccessStates.filter(Boolean).length;
+  document.getElementById('k-slider').value = k;
+  document.getElementById('k-val').textContent = k;
+  _distHoverSuppressed = false;
+  render();
+}
+
+let _distClone=null, _distSrcEl=null, _distSrcPos=-1, _distOffX=0, _distOffY=0, _distRaf=null, _distPrevX=0;
+
+function onDistIndicatorDown(event, pos) {
+  if (event.button !== undefined && event.button !== 0) return;
+  // Don't suppress hover here — pointerdown fires on every click too, so
+  // doing it here would fight the click-toggle below. Only an actual drag
+  // (real movement, detected in _onDistMove) should suppress hover.
+  event.preventDefault();
+  _distSrcPos = pos;
+  _distSrcEl  = event.currentTarget;
+  const rect  = _distSrcEl.getBoundingClientRect();
+  _distOffX   = event.clientX - rect.left;
+  _distOffY   = event.clientY - rect.top;
+  _distPrevX  = event.clientX;
+
+  // Floating clone of the actual dragged circle (not a synthetic badge)
+  _distClone = document.createElement('div');
+  _distClone.id = 'drag-clone';
+  _distClone.innerHTML = _distSrcEl.innerHTML;
+  _distClone.style.width = rect.width + 'px';
+  _distClone.style.transform = `translate3d(${rect.left}px,${rect.top}px,0) scale(1.13) rotate(-3deg)`;
+  document.body.appendChild(_distClone);
+  _distSrcEl.classList.add('drag-src');
+
+  document.addEventListener('pointermove', _onDistMove, {passive:false});
+  document.addEventListener('pointerup',   _onDistUp);
+  document.addEventListener('pointercancel', _onDistUp);
+}
+
+function _onDistMove(event) {
+  if (!_distClone) return;
+  event.preventDefault();
+  // This is real drag movement (not just a click) — suppress hover now.
+  if (!_distHoverSuppressed) { _distHoverSuppressed = true; onLetterOut(); }
+  const cx = event.clientX, cy = event.clientY;
+  const dx = cx - _distPrevX;
+  _distPrevX = cx;
+  // Synchronous, not rAF-deferred — a deferred update can still be pending
+  // (and get cancelled) when pointerup fires on a normal-speed drag, which
+  // is exactly what made the highlight never show up.
+  const x = cx - _distOffX, y = cy - _distOffY;
+  const tilt = Math.max(-18, Math.min(18, dx * 1.2));
+  _distClone.style.transform = `translate3d(${x}px,${y}px,0) scale(1.13) rotate(${tilt}deg)`;
+  document.querySelectorAll(DRAG_TARGETS).forEach((el) => {
+    if (el === _distSrcEl) return;
+    const r = el.getBoundingClientRect();
+    el.classList.toggle('drag-over',
+      cx >= r.left && cx <= r.right && cy >= r.top && cy <= r.bottom);
+  });
+}
+
+function _onDistUp(event) {
+  document.removeEventListener('pointermove', _onDistMove);
+  document.removeEventListener('pointerup',   _onDistUp);
+  document.removeEventListener('pointercancel', _onDistUp);
+
+  let targetPos = -1;
+  document.querySelectorAll(DRAG_TARGETS).forEach((el) => {
+    if (el.classList.contains('drag-over')) targetPos = +el.dataset.pos;
+    el.classList.remove('drag-over', 'drag-src');
+  });
+  if (_distSrcEl) { _distSrcEl.classList.remove('drag-src'); _distSrcEl = null; }
+  if (_distClone) { _distClone.remove(); _distClone = null; }
+  document.querySelectorAll('.drag-hl, .drag-hl-green, .drag-hl-red').forEach(el =>
+    el.classList.remove('drag-hl', 'drag-hl-green', 'drag-hl-red'));
+
+  if (targetPos !== -1 && _distSrcPos !== -1 && targetPos !== _distSrcPos) {
+    const tmp = personSuccessStates[_distSrcPos];
+    personSuccessStates[_distSrcPos] = personSuccessStates[targetPos];
+    personSuccessStates[targetPos] = tmp;
+    k = personSuccessStates.filter(Boolean).length;
+    document.getElementById('k-slider').value = k;
+    document.getElementById('k-val').textContent = k;
+    render();
+  }
+  _distSrcPos = -1;
+}
+
+function renderDist() {
+  const p       = binomp;
+  const q       = +(1 - p).toFixed(10);
+  const pd      = p.toFixed(2);
+  const qd      = q.toFixed(2);
+  const prob    = Math.pow(p, k) * Math.pow(q, n - k);
+  const fmtP    = v => v === 0 ? '0' : v < 0.0001 ? v.toExponential(3) : v.toFixed(4);
+  const probStr = fmtP(prob);
+  const SQ      = 320;
+  const BAR_H   = SQ - 30;
+
+  // Bar chart
+  const probs = Array.from({length:n+1}, (_,j) => Cnk(n,j) * Math.pow(p,j) * Math.pow(q,n-j));
+  const maxP  = Math.max(...probs);
+  const bars  = probs.map((prob, j) => {
+    const h   = maxP > 0 ? Math.max(2, Math.round(prob / maxP * BAR_H)) : 2;
+    const sel = j === k;
+    return `<div class="binom-bar-wrap ${sel?'selected':''}" onclick="onK(${j})">
+      <div class="binom-prob-val">${fmtP(prob)}</div>
+      <div class="binom-bar" style="height:${h}px"></div>
+      <div class="binom-bar-k">${j}</div>
+    </div>`;
+  }).join('');
+
+  // Combo rows
+  // Arrangement rows never get colored — the one row matching the current
+  // order of colors above just gets a plain black box outline instead.
+  const subsets       = combsK(Array.from({length:n},(_,i)=>i), k);
+  const currentSubset = personSuccessStates
+    .map((ok,i)=>ok?i:-1).filter(i=>i!==-1).join(',');
+  const comboRows = n === 0 ? '' : subsets.map(subset => {
+    const setOf     = new Set(subset);
+    const isCurrent = mode === 'app' && subset.join(',') === currentSubset;
+    const letters = Array.from({length:n}, (_,i) =>
+      `<span class="${setOf.has(i)?'bc-yes':'bc-no'}">${LETTERS[i]}</span>`
+    ).join('');
+    const rowBits = Array.from({length:n}, (_,i) => setOf.has(i) ? '1' : '0').join('');
+    return `<div class="binom-combo-row${isCurrent?' current-match':''}" data-bits="${rowBits}">${letters}</div>`;
+  }).join('');
+
+  const binomProb    = Cnk(n,k) * Math.pow(p,k) * Math.pow(q,n-k);
+  const binomProbStr = fmtP(binomProb);
+
+  let leftCol;
+  if (mode === 'app') {
+    const peopleHtmlStr = distPeopleHtml(); // resizes personSuccessStates to n as a side effect
+    // Multiply the terms in the actual order of the current colors, not
+    // grouped as p^k*q^(n-k) — e.g. red,green,red -> q . p . q.
+    const orderedTerms = personSuccessStates
+      .map(ok => ok ? `\\textcolor{#27ae60}{${pd}}` : `\\textcolor{#e74c3c}{${qd}}`)
+      .join(' \\cdot ');
+    leftCol = `
+      <div class="dist-col-label">Formula</div>
+      <div class="line-formula" style="margin-bottom:10px;">${K(`${orderedTerms} = \\textcolor{#3498db}{\\mathbf{${probStr}}}`)}</div>
+      <div class="line-formula" style="margin-bottom:10px;">${K(`\\textcolor{#3498db}{\\binom{${n}}{${k}}} \\cdot \\textcolor{#27ae60}{${pd}^{${k}}} \\cdot \\textcolor{#e74c3c}{${qd}^{${n-k}}} = \\textcolor{#3498db}{${binomProbStr}}`)}</div>
+      <div class="line-formula" style="margin-bottom:18px;">${K(`\\textcolor{#3498db}{${Cnk(n,k)}} \\cdot \\textcolor{#3498db}{\\mathbf{${probStr}}} = \\textcolor{#3498db}{${binomProbStr}}`)}</div>
+      <div class="line-def" style="margin-bottom:36px;">If <b>${n}</b> ${n===1?'person':'people'} with general admission tickets ${n===1?'is':'are'} in line, and there is an independent <b>${Number((p*100).toFixed(2))}%</b> chance any of them get boosted to VIP, there is a <b>${Number((binomProb*100).toFixed(2))}%</b> chance that <b>${k}</b> of them get moved to VIP.</div>`;
+  } else {
+    const setInner = Array.from({length:n},(_,i)=>`a_{${i+1}}`).join(',\\;');
+    leftCol = `
+      <div class="dist-col-label">Set</div>
+      <div class="line-set" style="margin-bottom:14px;">${K(`\\{\\;${setInner}\\;\\}`)}</div>
+      <div class="dist-col-label">Formula</div>
+      <div class="line-formula" style="margin-bottom:10px;">${K(`p^k\\cdot(1-p)^{n-k} = ${probStr}`)}</div>
+      <div class="line-formula" style="margin-bottom:18px;">${K(`\\binom{n}{k}\\cdot p^k\\cdot(1-p)^{n-k} = ${binomProbStr}`)}</div>
+      <div class="line-def" style="margin-bottom:36px;">${K('p^k(1-p)^{n-k}')} is one specific sequence. Multiply by ${K('\\binom{n}{k}')} to count all ${Cnk(n,k)} arrangements.</div>`;
+  }
+
+  document.getElementById('content').innerHTML = `
+    <div style="display:flex;gap:64px;align-items:flex-start;justify-content:space-between;flex-wrap:wrap;">
+      <div style="flex:1 1 460px;min-width:300px;max-width:460px;">${leftCol}
+        <div style="margin-top:24px;">
+          <div class="dist-col-label">${K(`\\binom{${n}}{${k}} = ${Cnk(n,k)}`)} arrangement${Cnk(n,k)!==1?'s':''}</div>
+          <div class="zoom-ctrl" style="margin-bottom:10px;">
+            <button class="zoom-btn" onclick="adjustZoom(-0.1)">&#8722;</button>
+            <span class="zoom-level">${Math.round(zoom*100)}%</span>
+            <button class="zoom-btn" onclick="adjustZoom(+0.1)">+</button>
+          </div>
+          <div class="binom-combo-list">${comboRows}</div>
+        </div>
       </div>
-
-      <!-- Bottom-right D-pad (exact 3×3 grid) -->
-      <div id="mobileControls" class="mobile-controls dpad" aria-label="Mobile controls">
-        <!-- Row 1 -->
-        <div class="spacer"></div>
-        <button class="mobile-btn up-btn" aria-label="Up"></button>
-        <div class="spacer"></div>
-
-        <!-- Row 2 -->
-        <button class="mobile-btn left-btn" aria-label="Left"></button>
-        <div class="spacer"></div>
-        <button class="mobile-btn right-btn" aria-label="Right"></button>
-
-        <!-- Row 3 -->
-        <div class="spacer"></div>
-        <button class="mobile-btn down-btn" aria-label="Down"></button>
-        <div class="spacer"></div>
+      <div style="flex:2 1 640px;display:flex;gap:56px;align-items:flex-start;justify-content:center;flex-wrap:wrap;">
+        <div class="dist-viz-card" style="flex-shrink:0;">
+          <div class="dist-col-label">Probability space</div>
+          ${buildProbSquareSVG(p, pd, qd, true, 'prob-svg-2', SQ)}
+          <div id="hover-label" style="font-weight:600;color:#555;min-height:18px;margin-top:6px;font-size:0.78rem;"></div>
+        </div>
+        <div class="dist-viz-card" style="flex-shrink:0;">
+          <div class="dist-col-label">Distribution</div>
+          <div class="binom-chart" style="max-width:none;margin-top:0;width:${(n+1)*54}px;">${bars}</div>
+          <div class="binom-x-axis" style="width:${(n+1)*54}px;">k &mdash; number of successes</div>
+        </div>
+        <div style="flex-basis:100%;">${peopleLineGraphicHtml()}</div>
       </div>
     </div>
-  </div>
+`;
+}
 
-  <!-- Instructions Modal -->
-  <div id="instructionsModal" class="modal">
-    <div class="modal-content">
-      <h2>How to Play</h2>
+// ════════════════════════════════════════════════════════════════════
+//  FACTORIAL
+// ════════════════════════════════════════════════════════════════════
+function emptyArrangementInner() {
+  return '';
+}
+function emptyArrangementHtml(sc='') {
+  return `<div class="arr-columns ${sc}"></div>`;
+}
 
-      <h3>Offense Mode</h3>
-      <ul>
-        <li>You are the blue point, trying to capture the red point</li>
-        <li>Red will try to maintain distance and find escape routes</li>
-      </ul>
+function renderFact() {
+  const f = fac(n);
+  const all = permsFull(Array.from({length:n},(_,i)=>i));
+  const sc  = colSizeClass();
 
-      <h3>Defense Mode</h3>
-      <ul>
-        <li>You are the blue point, trying to evade the red point</li>
-        <li>Stay connected to multiple paths to avoid being trapped</li>
-      </ul>
+  const appColsInner = Array.from({length:n},(_,gi) => {
+    const grp = all.filter(p=>p[0]===gi);
+    const items = grp.map(p=>`<div class="arr-item">${p.map(i=>`<span style="color:${COLORS[i]}">${LETTERS[i]}</span>`).join('')}</div>`).join('');
+    return `<div class="arr-col"><div class="arr-col-head" style="color:${COLORS[gi]}">${LETTERS[gi]}…</div>${items}</div>`;
+  }).join('');
+  const appArrHtml = n === 0 ? emptyArrangementHtml() : `<div class="arr-columns ${sc}">${appColsInner}</div>`;
 
-      <h3>Two Player Mode</h3>
-      <ul>
-        <li>On Desktop: Red uses WASD, Blue uses arrow keys</li>
-        <li>On Mobile: Buttons change color for current player's turn</li>
-        <li>Take turns trying to catch or escape each other</li>
-      </ul>
+  const thyColsInner = Array.from({length:n},(_,gi) => {
+    const grp = all.filter(p=>p[0]===gi);
+    const items = grp.map(p=>`<div class="arr-item">${K(p.map(i=>`a_{${i+1}}`).join(''))}</div>`).join('');
+    return `<div class="arr-col"><div class="arr-col-head">${K(`a_{${gi+1}}\\cdots`)}</div>${items}</div>`;
+  }).join('');
+  const thyArrHtml = n === 0 ? emptyArrangementHtml() : `<div class="arr-columns ${sc}">${thyColsInner}</div>`;
 
-      <h3>Game Basics</h3>
-      <ul>
-        <li>Each move removes one random edge</li>
-        <li>Win by either connecting points or completely separating them</li>
-        <li>Press Enter or Reset button to restart anytime</li>
-      </ul>
+  const setInner = Array.from({length:n},(_,i)=>`a_{${i+1}}`).join(',\\;');
+  const expand   = Array.from({length:n},(_,i)=>n-i);
+  const expandStr = expand.length ? `${expand.join('\\cdot')} = ` : '';
 
-      <button onclick="closeInstructions()" class="game-button">Close</button>
-    </div>
-  </div>
+  if (mode==='app') {
+    const ORD = ['first','second','third','fourth','fifth','sixth','seventh','eighth'];
+    const factDef = `There ${f===1?'is':'are'} <b>${f}</b> way${f===1?'':'s'} to order <b>${n}</b> ${n===1?'person':'people'} in a line`;
+    const eqRows = Array.from({length:n}, (_,i) => {
+      const who = n === 1 ? 'only' : (i === n-1 ? 'last' : ORD[i]);
+      const w = n-i;
+      return `<div class="fq-row">${i>0?'&times; ':''}<b>${w}</b> way${w===1?'':'s'} to pick the ${who} person</div>`;
+    }).join('');
+    const factEq = `<div class="fact-eq">${eqRows}<div class="fq-rule"></div>
+      <div class="fq-total">= <b>${f}</b> total way${f===1?'':'s'}</div></div>`;
+    document.getElementById('content').innerHTML = `
+      <div class="fact-top">
+        <div class="fact-left">
+          <div class="people-line" style="margin-bottom:26px;">${peopleHtml()}</div>
+          <div class="line-set">{ ${LETTERS.slice(0,n).join(',  ')} }</div>
+          <div class="line-formula">${K(`${n}! = ${expandStr}${f}`)}</div>
+          <div class="line-def fact-def">${factDef}</div>
+          ${factEq}
+        </div>
+        <div class="fact-graphic">${peopleLineGraphicHtml()}</div>
+      </div>
+      ${arrHeaderHtml(f, '')}
+      ${appArrHtml}`;
+  } else {
+    document.getElementById('content').innerHTML = `
+      <div class="line-set">${K(`\\{\\;${setInner}\\;\\}`)}</div>
+      <div class="line-formula">${K(`n! = n\\cdot(n-1)\\cdots 1 = ${expandStr}${f}`)}</div>
+      <div class="line-def">${K('n!')} counts every bijection from positions ${K('\\{1,\\ldots,n\\}')} onto the set, that is, every distinct ordering. Position 1 has ${K('n')} choices, position 2 has ${K('n-1')}, and so on: ${K(`${n}! = ${expandStr}${f}`)}.
+      </div>
+      ${arrHeaderHtml(f, '')}
+      ${thyArrHtml}`;
+  }
+}
 
-  <script src="game.js"></script>
+// ════════════════════════════════════════════════════════════════════
+//  PERMUTATIONS
+// ════════════════════════════════════════════════════════════════════
+function renderPerm() {
+  const total = Pnk(n,k);
+  const nFac  = fac(n);
+  const nkFac = fac(n-k);
+  const expand = Array.from({length:k},(_,i)=>n-i);
+
+  if (mode==='app') {
+    const tagged = tagPerms('perm');
+    const sc     = colSizeClass();
+    const colHead      = gi => `<span style="color:${COLORS[gi]}">${LETTERS[gi]}…</span>`;
+    const renderSimple = (d) => {
+      const colored = d.head.map(i=>`<span style="color:${COLORS[i]}">${LETTERS[i]}</span>`).join('');
+      return `<div class="arr-item">${colored}</div>`;
+    };
+
+    _arrSimple   = k === 0 ? emptyArrangementInner() : buildColumnsSimple(tagged, renderSimple, colHead);
+    _arrFull     = k === 0 ? emptyArrangementInner() : buildColumnsPerm(tagged);
+    const ORD = ['first','second','third','fourth','fifth','sixth','seventh','eighth'];
+    // Each tier name is colored to match its badge.
+    const tierName = i => {
+      const tier = TICKET_TIERS[i] || TICKET_TIERS[TICKET_TIERS.length-1];
+      const nice = tier.label.toLowerCase().replace(/\b\w/g, c=>c.toUpperCase());
+      return `<b class="tier-word" style="color:${tier.bg}">${nice}</b>`;
+    };
+    const gets = Array.from({length:k}, (_,i) => `the ${ORD[i]} person gets a ${tierName(i)} ticket`);
+    const rest = n-k;
+    const gone = rest === 0 ? '' : k === 0 ? 'nobody gets in'
+      : `the other ${rest===1?'person doesn’t':rest+' people don’t'} get in`;
+    const cl = gets.concat(gone ? [gone] : []);
+    const permClauses = cl.length > 1 ? cl.slice(0,-1).join(', ') + ', and ' + cl[cl.length-1] : cl.join('');
+    _defSimple   = `If you have <b>${n}</b> ${n===1?'person':'people'} in a line${permClauses ? ' and ' + permClauses : ''}, there ${total===1?'is':'are'} <b>${total}</b> way${total===1?'':'s'} to pick who gets which prize.`;
+    _defFull     = _defSimple + `<div class="def-sub">Every possible ordering of all ${n} people is shown. Each box is one unique top-${k} lineup, with all ${nkFac} arrangement${nkFac>1?'s':''} of the remaining ${n-k} listed inside. Cancel those repeats and you are left with ${total}.</div>`;
+    _totalSimple = total; _totalFull = nFac; _uniqueFull = total;
+
+    document.getElementById('content').innerHTML = `
+      <div class="people-line">${peopleHtml()}</div>
+      ${peopleLineGraphicHtml()}
+      <div class="line-set">{ ${LETTERS.slice(0,n).join(',  ')} }</div>
+      <div class="line-formula">${K(`P(${n},${k}) = \\frac{${n}!}{(${n}-${k})!} = \\frac{${nFac}}{${nkFac}} = ${total}`)}</div>
+      <div class="line-def" id="arr-def">${_defSimple}</div>
+      ${arrHeaderHtml(total, '', true)}
+      <div class="arr-columns ${sc}" id="arr-cols">${_arrSimple}</div>`;
+  } else {
+    // Theory: show only the P(n,k) unique k-length sequences
+    const sc = colSizeClass();
+    const thyColsInner = (() => {
+      if (k === 0) return emptyArrangementInner();
+      const all = permsFull(Array.from({length:n},(_,i)=>i));
+      const permsKArr = all.map(p=>p.slice(0,k));
+      const seen = new Set();
+      const unique = permsKArr.filter(p=>{ const key=p.join(','); if(seen.has(key))return false; seen.add(key); return true; });
+      const groups = Array.from({length:n},(_,gi)=>unique.filter(p=>p[0]===gi));
+      return groups.map((grp,gi)=>{
+        const items = grp.map(p=>`<div class="arr-item">${K(p.map(i=>`a_{${i+1}}`).join(''))}</div>`).join('');
+        return `<div class="arr-col"><div class="arr-col-head">${K(`a_{${gi+1}}\\cdots`)}</div>${items}</div>`;
+      }).join('');
+    })();
+    const setInner = Array.from({length:n},(_,i)=>`a_{${i+1}}`).join(',\\;');
+    document.getElementById('content').innerHTML = `
+      <div class="line-set">${K(`\\{\\;${setInner}\\;\\}`)}</div>
+      <div class="line-formula">${K(`P(n,k) = \\frac{n!}{(n-k)!} = ${expand.join('\\cdot')} = ${total}`)}</div>
+      <div class="line-def">${K('P(n,k)')} counts ordered ${K('k')}-tuples drawn without replacement. Start with ${K('n!')} full orderings, then collapse the ${K(`(n-k)! = ${nkFac}`)} irrelevant tail positions: ${K(`P(${n},${k})=\\frac{${nFac}}{${nkFac}}=${total}`)}.
+      </div>
+      ${arrHeaderHtml(total, '')}
+      <div class="arr-columns ${sc}">${thyColsInner}</div>`;
+  }
+}
+
+// ════════════════════════════════════════════════════════════════════
+//  COMBINATIONS
+// ════════════════════════════════════════════════════════════════════
+function renderComb() {
+  const total = Cnk(n,k);
+  const nFac  = fac(n);
+  const kFac  = fac(k);
+  const nkFac = fac(n-k);
+
+  if (mode==='app') {
+    const tagged = tagPerms('comb');
+    const sc     = colSizeClass();
+    const colHead     = gi => `<span style="color:${COLORS[gi]}">${LETTERS[gi]}…</span>`;
+    const renderSimple = (d) => {
+      const colored = d.head.map(i=>`<span style="color:${COLORS[i]}">${LETTERS[i]}</span>`).join('');
+      return `<div class="arr-item">${colored}</div>`;
+    };
+    const renderFull = (d, isGrey) => {
+      if (isGrey) {
+        const letters = d.perm.map(i=>`<span style="color:#ccc">${LETTERS[i]}</span>`).join('');
+        return `<div class="arr-item dim">${letters}</div>`;
+      }
+      const colored = d.head.map(i=>`<span style="color:${COLORS[i]}">${LETTERS[i]}</span>`).join('');
+      const muted   = d.tail.map(i=>`<span style="color:${COLORS[i]}">${LETTERS[i]}</span>`).join('');
+      return `<div class="arr-item">${colored}${muted}</div>`;
+    };
+
+    _arrSimple   = k === 0 ? emptyArrangementInner() : buildColumnsSimple(tagged, renderSimple, colHead);
+    _arrFull     = k === 0 ? emptyArrangementInner() : buildColumnsComb(tagged);
+    _defSimple   = `If you have <b>${n}</b> ${n===1?'person':'people'} in a line and only <b>${k}</b> ${k===1?'person':'people'} in line get${k===1?'s':''} a free ticket, there ${total===1?'is':'are'} <b>${total}</b> way${total===1?'':'s'} to pick who gets in for free.`;
+    const grpLetters = LETTERS.slice(0, k);
+    const grpEx = k >= 2
+      ? `, so {${grpLetters.join(', ')}} and {${[...grpLetters].reverse().join(', ')}} count as the same group`
+      : '';
+    const reps = kFac*nkFac;
+    _defFull     = _defSimple + `<div class="def-sub">The list below shows every possible way to line up all ${n} ${n===1?'person':'people'}. Only the first ${k} ${k===1?'spot matters':'spots matter'}, since that is who gets in for free, and the order inside that group doesn’t change who is in it${grpEx}. That means each group appears ${reps} time${reps===1?'':'s'} in the list: ${kFac} way${kFac===1?'':'s'} to order the chosen ${k} times ${nkFac} way${nkFac===1?'':'s'} to order the rest. Divide out those repeats and ${total===1?'1 distinct group is':`${total} distinct groups are`} left.</div>`;
+    _totalSimple = total; _totalFull = nFac; _uniqueFull = total;
+
+    document.getElementById('content').innerHTML = `
+      <div class="people-line">${peopleHtml()}</div>
+      ${peopleLineGraphicHtml()}
+      <div class="line-set">{ ${LETTERS.slice(0,n).join(',  ')} }</div>
+      <div class="line-formula">${K(`\\binom{${n}}{${k}} = \\frac{${n}!}{${k}!\\,(${n}-${k})!} = \\frac{${nFac}}{${kFac}\\cdot${nkFac}} = ${total}`)}</div>
+      <div class="line-def" id="arr-def">${_defSimple}</div>
+      ${arrHeaderHtml(total, '', true)}
+      <div class="arr-columns ${sc}" id="arr-cols">${_arrSimple}</div>`;
+  } else {
+    // Theory: show only C(n,k) canonical subsets
+    const setInner = Array.from({length:n},(_,i)=>`a_{${i+1}}`).join(',\\;');
+    const sc = colSizeClass();
+    const thyColsInner = (() => {
+      if (k === 0) return emptyArrangementInner();
+      const all = combsK(Array.from({length:n},(_,i)=>i), k);
+      const groups = (() => {
+        const map = {};
+        all.forEach(c=>{ (map[c[0]]||(map[c[0]]=[])).push(c); });
+        return Object.entries(map).sort(([a],[b])=>+a-+b).map(([key,items])=>({idx:+key,items}));
+      })();
+      return groups.map(({idx,items})=>{
+        const rows = items.map(c=>`<div class="arr-item">${K(c.map(i=>`a_{${i+1}}`).join(''))}</div>`).join('');
+        return `<div class="arr-col"><div class="arr-col-head">${K(`a_{${idx+1}}\\cdots`)}</div>${rows}</div>`;
+      }).join('');
+    })();
+    document.getElementById('content').innerHTML = `
+      <div class="line-set">${K(`\\{\\;${setInner}\\;\\}`)}</div>
+      <div class="line-formula">${K(`\\binom{n}{k}=\\frac{n!}{k!\\,(n-k)!}=\\frac{${nFac}}{${kFac}\\cdot${nkFac}}=${total}`)}</div>
+      <div class="line-def">${K('\\binom{n}{k}')} counts ${K('k')}-element subsets. Take ${K(`P(${n},${k})=${total*kFac}`)} ordered selections and divide by ${K(`k!=${kFac}`)}, the number of ways to rearrange each subset (which are all the same group): ${K(`\\binom{${n}}{${k}}=\\frac{${total*kFac}}{${kFac}}=${total}`)}.
+      </div>
+      ${arrHeaderHtml(total, '')}
+      <div class="arr-columns ${sc}">${thyColsInner}</div>`;
+  }
+}
+
+// ════════════════════════════════════════════════════════════════════
+//  BINOMIAL DISTRIBUTION
+// ════════════════════════════════════════════════════════════════════
+
+// ── INIT ─────────────────────────────────────────────────────────────
+(function initBtnLabels() {
+  const Ks = s => katex.renderToString(s, {throwOnError:false, output:'html'});
+  document.getElementById('btn-dist').innerHTML  = Ks('\\binom{n}{k}p^k(1-p)^{n-k}') + '<span>Binomial Distribution</span>';
+  document.getElementById('btn-fact').innerHTML  = Ks('n!') + '<span>Factorial</span>';
+  document.getElementById('btn-perm').innerHTML  = Ks('\\dfrac{n!}{(n-k)!}') + '<span>Permutations</span>';
+  document.getElementById('btn-comb').innerHTML  = Ks('\\dfrac{n!}{k!(n-k)!}') + '<span>Combinations</span>';
+})();
+setTopic('fact');
+adjustZoom(0);
+</script>
 </body>
 </html>
