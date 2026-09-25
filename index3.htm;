@@ -1,0 +1,92 @@
+```html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Math Games</title>
+
+    <style>
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+        }
+
+        #menu {
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 20px;
+        }
+
+        button {
+            padding: 12px 30px;
+            font-size: 18px;
+            cursor: pointer;
+            background: white;
+            border: 1px solid #999;
+            border-radius: 4px;
+        }
+
+        button:hover {
+            background: #f0f0f0;
+        }
+
+        #game {
+            display: none;
+        }
+
+        #gamebar {
+            height: 45px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding-left: 10px;
+            border-bottom: 1px solid #ccc;
+            background: white;
+        }
+
+        #gamebar button {
+            padding: 6px 16px;
+            font-size: 14px;
+        }
+
+        #gameframe {
+            width: 100%;
+            height: calc(100vh - 46px);
+            border: none;
+            display: block;
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- Initial screen -->
+    <div id="menu">
+        <button onclick="openGame('index.html')">Binomial</button>
+        <button onclick="openGame('index2.html')">Annuity</button>
+    </div>
+
+    <!-- Game screen -->
+    <div id="game">
+        <div id="gamebar">
+            <button onclick="openGame('index.html')">Binomial</button>
+            <button onclick="openGame('index2.html')">Annuity</button>
+        </div>
+
+        <iframe id="gameframe"></iframe>
+    </div>
+
+    <script>
+        function openGame(file) {
+            document.getElementById("menu").style.display = "none";
+            document.getElementById("game").style.display = "block";
+            document.getElementById("gameframe").src = file;
+        }
+    </script>
+
+</body>
+</html>
+```
