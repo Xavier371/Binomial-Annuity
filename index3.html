@@ -1,4 +1,3 @@
-```html
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -12,33 +11,39 @@
             font-family: Arial, sans-serif;
         }
 
+        /* Main selection screen */
         #menu {
             height: 100vh;
             display: flex;
             justify-content: center;
             align-items: center;
-            gap: 20px;
+            gap: 25px;
         }
 
-        button {
-            padding: 12px 30px;
-            font-size: 18px;
+        /* Main buttons */
+        #menu button {
+            padding: 18px 45px;
+            font-size: 22px;
+            font-weight: 600;
             cursor: pointer;
-            background: white;
-            border: 1px solid #999;
-            border-radius: 4px;
+            background: #2563eb;
+            color: white;
+            border: none;
+            border-radius: 6px;
         }
 
-        button:hover {
-            background: #f0f0f0;
+        #menu button:hover {
+            background: #1d4ed8;
         }
 
+        /* Game area */
         #game {
             display: none;
         }
 
+        /* Switcher at top of game */
         #gamebar {
-            height: 45px;
+            height: 50px;
             display: flex;
             align-items: center;
             gap: 10px;
@@ -48,13 +53,23 @@
         }
 
         #gamebar button {
-            padding: 6px 16px;
-            font-size: 14px;
+            padding: 7px 18px;
+            font-size: 15px;
+            cursor: pointer;
+            background: #2563eb;
+            color: white;
+            border: none;
+            border-radius: 5px;
         }
 
+        #gamebar button:hover {
+            background: #1d4ed8;
+        }
+
+        /* Game itself */
         #gameframe {
             width: 100%;
-            height: calc(100vh - 46px);
+            height: calc(100vh - 51px);
             border: none;
             display: block;
         }
@@ -63,21 +78,25 @@
 
 <body>
 
-    <!-- Initial screen -->
+    <!-- Main selection screen -->
     <div id="menu">
         <button onclick="openGame('index.html')">Binomial</button>
         <button onclick="openGame('index2.html')">Annuity</button>
     </div>
 
+
     <!-- Game screen -->
     <div id="game">
+
         <div id="gamebar">
             <button onclick="openGame('index.html')">Binomial</button>
             <button onclick="openGame('index2.html')">Annuity</button>
         </div>
 
         <iframe id="gameframe"></iframe>
+
     </div>
+
 
     <script>
         function openGame(file) {
@@ -89,4 +108,3 @@
 
 </body>
 </html>
-```
