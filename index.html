@@ -10,6 +10,7 @@
 <script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
 <style>
 * { margin:0; padding:0; box-sizing:border-box; }
+html { overflow-y: scroll; scrollbar-gutter: stable; }
 body {
   font-family: 'Inter', sans-serif;
   background: #fff;
@@ -416,6 +417,44 @@ input[type=range]::-webkit-slider-thumb:hover { transform: scale(1.2); }
   text-transform: uppercase;
   color: #bbb;
 }
+
+/* ── PHONES / SMALL SCREENS (desktop layout above is untouched) ── */
+@media (max-width: 820px) {
+  header { flex-direction: column; align-items: stretch; padding: 14px 16px; gap: 12px; }
+  .header-left { gap: 8px; }
+  .slider-row { gap: 10px; }
+  .slider-row input[type=range] { flex: 1; width: auto; min-width: 0; height: 6px; touch-action: pan-y; }
+  input[type=range]::-webkit-slider-thumb { width: 26px; height: 26px; }
+  input[type=range]::-moz-range-thumb { width: 22px; height: 22px; }
+  .header-center .topic-row { flex-wrap: wrap; }
+  .topic-btn { flex: 1 1 calc(50% - 6px); padding: 10px 8px; }
+  .header-right { flex-direction: row; min-width: 0; }
+  .header-right .mode-btn { flex: 1; padding: 10px 8px; }
+  .content { padding: 22px 16px 60px; }
+  .line-set, .line-set .katex { font-size: 1.35rem; }
+  .line-formula, .line-formula .katex { font-size: 1.1rem; }
+  .line-formula b { font-size: 1.15rem; }
+  .line-def { font-size: 1rem; line-height: 1.75; margin-bottom: 28px; }
+  .line-def .katex { font-size: 1.05rem; }
+  .fact-def { font-size: 1.15rem; }
+  .fact-eq { min-width: 0; font-size: 1.05rem; }
+  .fact-top { gap: 24px; }
+  .fact-graphic { flex-basis: 100%; }
+  .people-line { gap: 12px; }
+  .person-circle { width: 52px; height: 52px; font-size: 1.15rem; }
+  .people-graphic { gap: 8px; justify-content: center; }
+  .people-graphic .pg-person svg { width: 56px; height: auto; }
+  .pg-medal { font-size: 0.5rem; padding: 0 5px; height: 18px; }
+  .fact-graphic .people-graphic { flex-wrap: wrap; }
+  .dist-bottom-row { flex-wrap: wrap; gap: 28px; }
+  .binom-layout { flex-wrap: wrap; }
+  .binom-combos { width: 100%; }
+  .arr-columns { -webkit-overflow-scrolling: touch; }
+  svg[id^="prob-svg"] { max-width: 100%; height: auto; }
+  .binom-chart, .binom-x-axis { width: 100% !important; max-width: 100% !important; }
+  .dist-viz-card { max-width: 100%; }
+  #content > div, #content > div > div { min-width: 0; }
+}
 </style>
 </head>
 <body>
@@ -511,7 +550,7 @@ const TICKET_TIERS = [
   { label: 'GOLD',               bg: '#ffd700', fg: '#5c4a00' },
   { label: 'SILVER',             bg: '#c0c0c0', fg: '#333' },
   { label: 'BRONZE',             bg: '#cd7f32', fg: '#fff' },
-  { label: 'PLATINUM',           bg: '#cfd8dc', fg: '#333' },
+  { label: 'PLATINUM',           bg: '#4fc3f7', fg: '#083247' },
   { label: 'VIP',                bg: '#7b2cbf', fg: '#fff' },
   { label: 'PREMIUM',            bg: '#263859', fg: '#fff' },
   { label: 'FREE',               bg: '#43a047', fg: '#fff' },
@@ -531,7 +570,7 @@ function peopleLineGraphicHtml() {
   if (topic === 'dist') {
     const figures = Array.from({length:n}, (_, pos) => {
       const ok = personSuccessStates[pos];
-      const badge = `<div class="pg-medal" style="background:${ok?'#27ae60':'#e74c3c'};color:#fff">${ok?'&#10003;':'&#10007;'}</div>`;
+      const badge = `<div class="pg-medal" style="background:${ok?'#27ae60':'#e74c3c'};color:#fff">${ok?'VIP':'STANDARD'}</div>`;
       return `
       <div class="pg-person" data-pos="${pos}" onclick="onDistSingleClick(${pos})" ondblclick="onDistToggle(${pos})"
         onpointerdown="onDistIndicatorDown(event,${pos})" onmouseover="onLetterHover(${pos})" onmouseout="onLetterOut()">
@@ -575,7 +614,8 @@ let topic = 'fact', mode = 'app', zoom = 1.5;
 let n = 3, k = 0, binomp = 0.5;
 let _showAllOn = true;
 let _permCombVisited = false; // n=5,k=3 the first time either is visited
-let _distVisited = false;     // n=5,k=3 the first time it's visited
+let _skipStatesReset = false;
+let _distVisited = false;    // n=5,k=3 the first time it's visited
 let peopleOrder = Array.from({length:n}, (_, i) => i);
 let personSuccessStates = Array.from({length:n}, (_, i) => i < k);
 let dragSrcPos = -1;
@@ -698,10 +738,15 @@ function setTopic(t) {
   }
   if (!_distVisited && t === 'dist') {
     _distVisited = true;
-    n = 5; k = 3;
+    n = 6;
+    resetPeopleOrder();
+    personSuccessStates = Array.from({length:n}, () => Math.random() < 0.5);
+    k = personSuccessStates.filter(Boolean).length;
+    _skipStatesReset = true;
   }
   resetPeopleOrder();
-  resetPersonSuccessStates();
+  if (_skipStatesReset) _skipStatesReset = false;
+  else resetPersonSuccessStates();
   document.querySelectorAll('.topic-btn').forEach(b=>b.classList.remove('active'));
   document.getElementById('btn-'+t).classList.add('active');
   const showK = t !== 'fact';
@@ -1022,12 +1067,10 @@ function buildProbSquareSVG(p, pd, qd, highlightAll, svgId, S=300) {
 
   const xPx = (p * S).toFixed(1);
   const yPx = ((1 - p) * S).toFixed(1);
-  const PAD = 20;
+  const PAD = 4;
   const dividers = `
     <line x1="${xPx}" y1="0" x2="${xPx}" y2="${S}" stroke="#555" stroke-width="1" stroke-dasharray="4,3"/>
-    ${n >= 2 ? `<line x1="0" y1="${yPx}" x2="${S}" y2="${yPx}" stroke="#555" stroke-width="1" stroke-dasharray="4,3"/>` : ''}
-    <text x="${(+xPx/2).toFixed(1)}" y="${S+PAD-3}" text-anchor="middle" font-size="11" fill="#27ae60" font-weight="700" ${F}>p=${pd}</text>
-    <text x="${((+xPx+S)/2).toFixed(1)}" y="${S+PAD-3}" text-anchor="middle" font-size="11" fill="#e74c3c" font-weight="700" ${F}>q=${qd}</text>`;
+    ${n >= 2 ? `<line x1="0" y1="${yPx}" x2="${S}" y2="${yPx}" stroke="#555" stroke-width="1" stroke-dasharray="4,3"/>` : ''}`;
 
   return `<svg id="${svgId}" width="${S}" height="${S+PAD}" viewBox="0 0 ${S} ${S+PAD}"
     style="display:block;" ${F}>
@@ -1100,8 +1143,8 @@ function onLetterHover(letterIdx) {
 
   const lbl = document.getElementById('hover-label');
   if (lbl) lbl.textContent = isSuccess
-    ? `${NAMES[letterIdx]} succeeds — p = ${binomp.toFixed(2)}`
-    : `${NAMES[letterIdx]} fails — q = ${(1-binomp).toFixed(2)}`;
+    ? `${NAMES[letterIdx]} gets VIP: p = ${binomp.toFixed(2)}`
+    : `${NAMES[letterIdx]} stays standard: q = ${(1-binomp).toFixed(2)}`;
 }
 
 function onLetterOut() {
@@ -1115,6 +1158,30 @@ function onLetterOut() {
 }
 
 const onesIn = s => (s.match(/1/g) || []).length;
+
+// Hovering a frequency bar highlights every probability-space cell with that many successes.
+function onBarHover(j) {
+  ['prob-svg-1', 'prob-svg-2'].forEach(svgId => {
+    const svg = document.getElementById(svgId);
+    if (!svg) return;
+    svg.querySelectorAll('.bar-overlay').forEach(el => el.remove());
+    svg.querySelectorAll('rect[data-bits]').forEach(r => {
+      if (onesIn(r.getAttribute('data-bits')) !== j) return;
+      const ov = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+      ['x', 'y', 'width', 'height'].forEach(a => ov.setAttribute(a, r.getAttribute(a)));
+      ov.setAttribute('class', 'bar-overlay');
+      const blue = j === k;
+      ov.setAttribute('fill', blue ? 'rgba(52,152,219,0.45)' : 'rgba(120,120,120,0.35)');
+      ov.setAttribute('stroke', blue ? '#3498db' : '#777');
+      ov.setAttribute('stroke-width', '1.5');
+      ov.setAttribute('pointer-events', 'none');
+      svg.appendChild(ov);
+    });
+  });
+}
+function onBarOut() {
+  document.querySelectorAll('.bar-overlay').forEach(el => el.remove());
+}
 
 // Hovering a probability-space cell greys the arrangement row it belongs to
 // (only visible when that cell's success count matches the listed k).
@@ -1351,7 +1418,7 @@ function renderDist() {
   const bars  = probs.map((prob, j) => {
     const h   = maxP > 0 ? Math.max(2, Math.round(prob / maxP * BAR_H)) : 2;
     const sel = j === k;
-    return `<div class="binom-bar-wrap ${sel?'selected':''}" onclick="onK(${j})">
+    return `<div class="binom-bar-wrap ${sel?'selected':''}" onclick="onK(${j})" onmouseover="onBarHover(${j})" onmouseout="onBarOut()">
       <div class="binom-prob-val">${fmtP(prob)}</div>
       <div class="binom-bar" style="height:${h}px"></div>
       <div class="binom-bar-k">${j}</div>
@@ -1386,6 +1453,8 @@ function renderDist() {
       .map(ok => ok ? `\\textcolor{#27ae60}{${pd}}` : `\\textcolor{#e74c3c}{${qd}}`)
       .join(' \\cdot ');
     leftCol = `
+      <div class="drag-note">You can drag and drop them to swap two people's outcomes.</div>
+      <div class="people-line people-line-dist">${peopleHtmlStr}</div>
       <div class="dist-col-label">Formula</div>
       <div class="line-formula" style="margin-bottom:10px;">${K(`${orderedTerms} = \\textcolor{#3498db}{\\mathbf{${probStr}}}`)}</div>
       <div class="line-formula" style="margin-bottom:10px;">${K(`\\textcolor{#3498db}{\\binom{${n}}{${k}}} \\cdot \\textcolor{#27ae60}{${pd}^{${k}}} \\cdot \\textcolor{#e74c3c}{${qd}^{${n-k}}} = \\textcolor{#3498db}{${binomProbStr}}`)}</div>
@@ -1599,7 +1668,7 @@ function renderComb() {
 
     _arrSimple   = k === 0 ? emptyArrangementInner() : buildColumnsSimple(tagged, renderSimple, colHead);
     _arrFull     = k === 0 ? emptyArrangementInner() : buildColumnsComb(tagged);
-    _defSimple   = `If you have <b>${n}</b> ${n===1?'person':'people'} in a line and only <b>${k}</b> ${k===1?'person':'people'} in line get${k===1?'s':''} a free ticket, there ${total===1?'is':'are'} <b>${total}</b> way${total===1?'':'s'} to pick who gets in for free.`;
+    _defSimple   = `If you have <b>${n}</b> ${n===1?'person':'people'} in a line and only the first <b>${k}</b> ${k===1?'person gets':'people get'} a free ticket, there ${total===1?'is':'are'} <b>${total}</b> way${total===1?'':'s'} to pick who gets in for free.`;
     const grpLetters = LETTERS.slice(0, k);
     const grpEx = k >= 2
       ? `, so {${grpLetters.join(', ')}} and {${[...grpLetters].reverse().join(', ')}} count as the same group`
