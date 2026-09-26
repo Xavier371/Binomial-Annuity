@@ -41,9 +41,11 @@ p .katex { font-size: 1.2rem; }
   margin-top: 40px;
   max-width: 1080px; margin-left: auto; margin-right: auto;
 }
-.intro-eqn { flex: 1.25; text-align: center; padding-top: 6px; }
+.intro-eqn { flex: 1.25; text-align: center; padding-top: 6px; display: flex; flex-direction: column; align-self: stretch; }
+.ex1-numeq { flex: 1; display: flex; align-items: center; justify-content: center; min-height: 80px; }
+.ex1-numeq .katex-display { margin: 0; }
 .intro-eqn .katex-display { margin: 0; text-align: center; }
-#e-general { margin-top: 26px; }
+#e-general { margin-bottom: 14px; }
 
 .exhibit1 { flex: 1; min-width: 0; padding-left: 32px; }
 .ex1-graphbox { border-left: 1px solid #ccc; border-bottom: 1px solid #ccc; padding-left: 32px; padding-bottom: 14px; margin-left: -32px; }
@@ -104,12 +106,23 @@ svg.chart { display: block; width: 100%; height: auto; overflow: visible; }
 .ex1-input-row > span:first-child { width: 90px; text-align: right; }
 .ex1-input-row .ex1-unit.pre { width: 14px; text-align: right; }
 .ex1-input-row .ex1-unit.post { width: 22px; text-align: left; }
+.ex1-mid { display: flex; align-items: center; justify-content: center; gap: 36px; margin-top: 22px; }
+.ex1-mid-inputs { margin-top: 0; }
+.ex1-mid-inputs .ex1-input-row { gap: 6px; }
+.ex1-mid-inputs .ex1-input-row > span:first-child { width: 56px; }
+.ex1-mid-inputs input.num-input { width: 64px; }
+.ex1-slider { -webkit-appearance: none; appearance: none; width: 120px; height: 3px; background: #b3a074; border-radius: 2px; outline: none; margin-left: 10px; cursor: pointer; }
+.ex1-slider::-webkit-slider-thumb { -webkit-appearance: none; width: 15px; height: 15px; border-radius: 50%; background: #2c2416; border: 2px solid #f1e9d8; box-shadow: 0 0 0 1px #2c2416; cursor: pointer; }
+.ex1-slider::-moz-range-thumb { width: 12px; height: 12px; border-radius: 50%; background: #2c2416; border: 2px solid #f1e9d8; cursor: pointer; }
+.intro-row.hov-green [style*="#3a7d44"], .intro-row.hov-red [style*="#a63d2f"], .intro-row.hov-blue [style*="#2c4870"] { font-weight: bold; }
+.bar-eq .bar-item { padding: 0 6px; }
 .bar-eq { display: flex; justify-content: center; align-items: center; gap: 16px; margin-top: 14px; line-height: 1; }
 .bar-eq .bar-item { display: flex; flex-direction: column; align-items: center; font-size: 1rem; }
 .bar-eq .bar-op { font-size: 1.7rem; line-height: 1; }
 
 @media (max-width: 760px) {
   .intro-row { flex-direction: column; gap: 36px; }
+  .ex1-mid { flex-direction: column; }
   .exhibit1 { padding-left: 0; padding-top: 28px; }
   .ex1-graphbox { border-left: none; margin-left: 0; padding-left: 0; }
 }
@@ -150,6 +163,7 @@ table.data-table tbody tr:nth-child(even) { background: rgba(154,138,95,0.06); }
 .ex2-deriv { flex: 1; min-width: 0; font-size: 1.05rem; line-height: 2.1; text-align: center; }
 .ex2-deriv .deriv-label { font-style: italic; color: #666; font-size: 0.95rem; margin-bottom: 6px; }
 .ex2-deriv .katex-display { margin: 12px 0; }
+.ex2-deriv .deriv-prose { margin: 12px auto; max-width: 100%; overflow-wrap: break-word; }
 
 @media (max-width: 760px) {
   .ex2-row { flex-direction: column; gap: 28px; }
@@ -189,7 +203,7 @@ table.data-table tbody tr:nth-child(even) { background: rgba(154,138,95,0.06); }
 }
 .ex3-del-btn:hover { background: #a63d2f; }
 .ex3-formula { margin-top: 20px; font-size: 1.15rem; color: #444; }
-.ex3-legend { min-height: 1.6rem; margin-bottom: 16px; font-size: 1.05rem; }
+.ex3-legend { display: none; }
 .ex3-legend .ex3-legend-item {
   margin: 0 4px; padding: 3px 8px; font-weight: bold; border-radius: 4px;
   cursor: pointer; transition: background 0.15s; display: inline-flex; align-items: center; gap: 5px;
@@ -223,9 +237,38 @@ table.data-table tbody tr:nth-child(even) { background: rgba(154,138,95,0.06); }
 .ex5-controls input.num-input { width: 70px; }
 .ex5-btns { display: flex; justify-content: center; gap: 14px; margin-bottom: 14px; flex-wrap: wrap; }
 .ex5-btns button:disabled { opacity: .45; cursor: default; }
+.ex5-phase { min-height: 1.6em; font-style: italic; color: #5b4636; margin-bottom: 6px; font-size: 1.05rem; }
 .ex5-amounts { margin-top: 12px; font-size: 1.05rem; line-height: 1.9; }
 .ex5-amounts .row-done { font-weight: bold; }
 .ex5-amounts .row-wait { color: #aaa; }
+/* ── phones: the same design, just easier to read and play ─────────── */
+@media (max-width: 700px) {
+  body { padding: 28px 6px 90px; }
+  .sheet { padding: 12px 4px; }
+  .title { font-size: 2.1rem; }
+  p { font-size: 1.08rem; line-height: 1.75; text-align: left; }
+  .intro-row { margin-top: 24px; gap: 26px; }
+  .katex-display { overflow-x: auto; overflow-y: hidden; padding: 2px 0; }
+  .ex1-summary, .ex1-summary .katex, .ex1-input-row .katex { font-size: 1.05rem; }
+  .ex1-mid-inputs .ex1-input-row > span:first-child { width: 64px; }
+  .ex1-slider { width: 110px; }
+  .num-input, .ex1-input-row input.num-input, .ex1-mid-inputs input.num-input { font-size: 16px; }
+  .tick-label { font-size: 17px; }
+  .point-label { font-size: 18px; }
+  .axis-title { font-size: 17px; }
+  .ex2-deriv, .ex5-amounts { font-size: 1rem; }
+  .ex5-amounts .katex { font-size: 0.95rem; }
+}
+/* touch screens: bigger things to grab */
+@media (pointer: coarse) {
+  .ex4-zoom-btn { min-width: 44px; min-height: 44px; font-size: 1.3rem; }
+  input[type=checkbox] { width: 22px; height: 22px; }
+  .ex3-add-btn, .ex2-controls button, .ex4-unselect { min-height: 44px; }
+  .ex3-del-btn { width: 26px; height: 26px; line-height: 22px; font-size: 14px; }
+  .ex1-slider { height: 6px; }
+  .ex1-slider::-webkit-slider-thumb { width: 28px; height: 28px; }
+  .ex1-slider::-moz-range-thumb { width: 24px; height: 24px; }
+}
 </style>
 </head>
 <body>
@@ -240,14 +283,17 @@ table.data-table tbody tr:nth-child(even) { background: rgba(154,138,95,0.06); }
   <div class="intro-row">
     <div class="intro-eqn">
       <div id="e-defs"></div>
-      <div class="bar-eq" id="ex1-bar-line"></div>
-      <div id="e-general"></div>
-      <div class="ex1-summary">
-        <div class="ex1-input-row"><span id="ex1-t-lab"></span><span class="ex1-eq">=</span><span class="ex1-unit pre"></span><input type="number" class="num-input" id="ex1-t" value="1" step="1"><span class="ex1-unit post"></span></div>
-        <div class="ex1-input-row"><span id="ex1-a-lab"></span><span class="ex1-eq">=</span><span class="ex1-unit pre">$</span><input type="number" class="num-input" id="ex1-a0" value="1" step="0.01"><span class="ex1-unit post"></span></div>
-        <div class="ex1-input-row"><span id="ex1-i-lab"></span><span class="ex1-eq">=</span><span class="ex1-unit pre"></span><input type="number" class="num-input" id="ex1-i" value="5" step="0.01"><span class="ex1-unit post">%</span></div>
-        <div class="formula-row" id="ex1-general-line"></div>
+      <div class="ex1-mid">
+        <div class="ex1-mid-bars"><div class="bar-eq" id="ex1-bar-line"></div></div>
+        <div class="ex1-summary ex1-mid-inputs">
+          <div id="e-general"></div>
+          <div class="ex1-input-row"><span id="ex1-t-lab"></span><span class="ex1-eq">=</span><span class="ex1-unit pre"></span><input type="number" class="num-input" id="ex1-t" value="10" step="1"><span class="ex1-unit post"></span><input type="range" class="ex1-slider" id="ex1-t-s" min="1" max="20" step="1" value="10"></div>
+          <div class="ex1-input-row"><span id="ex1-a-lab"></span><span class="ex1-eq">=</span><span class="ex1-unit pre">$</span><input type="number" class="num-input" id="ex1-a0" value="250" step="1"><span class="ex1-unit post"></span><input type="range" class="ex1-slider" id="ex1-a0-s" min="1" max="1000" step="1" value="250"></div>
+          <div class="ex1-input-row"><span id="ex1-i-lab"></span><span class="ex1-eq">=</span><span class="ex1-unit pre"></span><input type="number" class="num-input" id="ex1-i" value="60" step="0.01"><span class="ex1-unit post">%</span><input type="range" class="ex1-slider" id="ex1-i-s" min="0" max="1000" step="1" value="60"></div>
+        </div>
       </div>
+      <div class="formula-row" id="ex1-general-line" style="display:none"></div>
+      <div class="ex1-numeq" id="ex1-numeq"></div>
     </div>
     <div class="exhibit1">
       <div class="ex1-graphbox">
@@ -273,9 +319,9 @@ table.data-table tbody tr:nth-child(even) { background: rgba(154,138,95,0.06); }
       <svg class="chart" id="ex2-compound-chart" viewBox="0 0 380 220" preserveAspectRatio="xMidYMid meet"></svg>
     </div>
     <div class="ex2-controls">
-      <div class="ctrl"><label>n</label><input type="number" class="num-input" id="ex2-n" value="10" step="1"></div>
-      <div class="ctrl"><label>i</label><input type="number" class="num-input" id="ex2-i" value="5" step="0.01"><span class="unit">%</span></div>
-      <div class="ctrl"><label>A(0)</label><input type="number" class="num-input" id="ex2-a0" value="1000" step="0.01"></div>
+      <div class="ctrl"><label>A(0)</label><input type="number" class="num-input" id="ex2-a0" value="100" step="0.01"></div>
+      <div class="ctrl"><label>i</label><input type="number" class="num-input" id="ex2-i" value="10" step="0.01"><span class="unit">%</span></div>
+      <div class="ctrl"><label>n</label><input type="number" class="num-input" id="ex2-n" value="50" step="1"></div>
     </div>
     <div class="ex2-graph">
       <div class="graph-title">Simple Interest</div>
@@ -381,20 +427,20 @@ table.data-table tbody tr:nth-child(even) { background: rgba(154,138,95,0.06); }
   <div class="ex3-heading">
     <div class="ex-title">Exhibit 5</div>
     <div class="section-title">Moving Payments Through Time</div>
-    <div class="section-sub">Flat payments on a time diagram &mdash; watch each one get discounted back to time 0, or accumulated forward to time n.</div>
+    <div class="section-sub">Flat payments on a time diagram &mdash; accumulate them to time n, discount the whole stack back to time 0, then accumulate each one back to where it started.</div>
   </div>
 
   <div class="ex5-wrap">
     <div class="ex5-controls">
-      <div class="ctrl"><label>P</label><input type="number" class="num-input" id="ex5-p" value="100" step="1"></div>
-      <div class="ctrl"><label>i</label><input type="number" class="num-input" id="ex5-i" value="8" step="0.01"><span class="unit">%</span></div>
+      <div class="ctrl"><label>P</label><input type="number" class="num-input" id="ex5-p" value="10" step="1"></div>
+      <div class="ctrl"><label>i</label><input type="number" class="num-input" id="ex5-i" value="80" step="0.01"><span class="unit">%</span></div>
       <div class="ctrl"><label>n</label><input type="number" class="num-input" id="ex5-n" value="5" step="1"></div>
     </div>
     <div class="ex5-btns">
-      <button type="button" class="ex3-add-btn" id="ex5-play-d">&#9654; Discount</button>
-      <button type="button" class="ex3-add-btn" id="ex5-play-a">&#9654; Accumulate</button>
+      <button type="button" class="ex3-add-btn" id="ex5-play">&#9654; Play</button>
       <button type="button" class="ex3-add-btn" id="ex5-reset">Reset</button>
     </div>
+    <div class="ex5-phase" id="ex5-phase"></div>
     <svg class="chart" id="ex5-chart" viewBox="0 0 640 300" preserveAspectRatio="xMidYMid meet"></svg>
     <div class="ex5-amounts" id="ex5-amounts"></div>
   </div>
@@ -423,9 +469,18 @@ document.getElementById('k-A0').innerHTML = K('A(0)');
 document.getElementById('k-t0').innerHTML = K('t=0');
 document.getElementById('k-At').innerHTML = K('A(t)');
 document.getElementById('k-t').innerHTML = K('t');
-const _G = x => `\\textcolor{#3a7d44}{${x}}`, _R = x => `\\textcolor{#a63d2f}{${x}}`, _B = x => `\\textcolor{#2c4870}{${x}}`;
-document.getElementById('e-defs').innerHTML = Kd(`${_G('I(t)')} = ${_R('A(t)')} - ${_B('A(t-1)')}, \\qquad i_t = \\dfrac{${_G('I(t)')}}{${_B('A(t-1)')}} = \\dfrac{${_R('A(t)')} - ${_B('A(t-1)')}}{${_B('A(t-1)')}}`);
-document.getElementById('e-general').innerHTML = Kd(`\\Rightarrow \\quad ${_R('A(t)')} = ${_B('A(t-1)')}(1+i)`);
+// key: 'g' = I(t), 'r' = A(t), 'b' = A(t-1) -- that term is set bold while its bar is moving
+const COARSE = window.matchMedia('(pointer: coarse)').matches;   // touch screen
+const PHONE = window.matchMedia('(max-width: 700px)').matches;
+function renderEx1Defs(bold) {
+  const f = (c, k) => x => `\\textcolor{${c}}{${bold === k ? '\\boldsymbol{' + x + '}' : x}}`;
+  const _G = f('#3a7d44', 'g'), _R = f('#a63d2f', 'r'), _B = f('#2c4870', 'b');
+  // side by side on a computer; stacked on a phone so nothing runs off the screen
+  const defs = `${_G('I(t)')} = ${_R('A(t)')} - ${_B('A(t-1)')}${PHONE ? ' \\\\[10pt] ' : ', \\qquad '}i_t = \\dfrac{${_G('I(t)')}}{${_B('A(t-1)')}} = \\dfrac{${_R('A(t)')} - ${_B('A(t-1)')}}{${_B('A(t-1)')}}`;
+  document.getElementById('e-defs').innerHTML = Kd(PHONE ? `\\begin{gathered}${defs}\\end{gathered}` : defs);
+  document.getElementById('e-general').innerHTML = Kd(`\\Rightarrow \\quad ${_R('A(t)')} = ${_B('A(t-1)')}(1+i)`);
+}
+renderEx1Defs(null);
 
 // "Nice numbers" axis ticks (Heckbert's algorithm) — round, evenly-spaced
 // values like $1.00 / $1.02 / $1.04 rather than whatever four equal
@@ -463,78 +518,114 @@ function niceTicks(dataMin, dataMax, maxTicks) {
 /* ── Exhibit 1: one period, t-1 to t, driven by the inputs ─────────── */
 (function() {
   const tEl = document.getElementById('ex1-t'), a0El = document.getElementById('ex1-a0'), iEl2 = document.getElementById('ex1-i');
+  const tS = document.getElementById('ex1-t-s'), aS = document.getElementById('ex1-a0-s'), iS = document.getElementById('ex1-i-s');
+  const svg = document.getElementById('ex1-chart');
+  const barRow = document.getElementById('ex1-bar-line');
   const fmtN = x => (Math.round(x * 1e6) / 1e6).toLocaleString(undefined, { maximumFractionDigits: 6 });
   const blue  = s => `\\textcolor{#2c4870}{${s}}`;
   const red   = s => `\\textcolor{#a63d2f}{${s}}`;
   const green = s => `\\textcolor{#3a7d44}{${s}}`;
-  const barIcon = (color, h) => `<svg width="14" height="${h + 6}" viewBox="0 0 14 ${h + 6}" style="display:block"><line x1="7" y1="3" x2="7" y2="${h + 3}" stroke="${color}" stroke-width="2.5"/><line x1="1" y1="3" x2="13" y2="3" stroke="${color}" stroke-width="2.5"/><line x1="1" y1="${h + 3}" x2="13" y2="${h + 3}" stroke="${color}" stroke-width="2.5"/></svg>`;
+  // sc = on-screen scale of the chart, so these icons are exactly as big as
+  // the bars drawn in the graph.
+  const barIcon = (color, h, sc) => {
+    const w = 12 * sc, cap = 6 * sc, sw = 2.5 * sc, m = 3 * sc;
+    return `<svg width="${w + 2 * m}" height="${h + 2 * m}" viewBox="0 0 ${w + 2 * m} ${h + 2 * m}" style="display:block;overflow:visible"><line x1="${w / 2 + m}" y1="${m}" x2="${w / 2 + m}" y2="${h + m}" stroke="${color}" stroke-width="${sw}"/><line x1="${w / 2 + m - cap}" y1="${m}" x2="${w / 2 + m + cap}" y2="${m}" stroke="${color}" stroke-width="${sw}"/><line x1="${w / 2 + m - cap}" y1="${h + m}" x2="${w / 2 + m + cap}" y2="${h + m}" stroke="${color}" stroke-width="${sw}"/></svg>`;
+  };
 
-  function renderExhibit1() {
+  const H = 200, padL = 56, padR = 24, padT = 16, padB = 34;
+  const plotW = 456, plotH = H - padT - padB;
+  const plotR = padL + plotW, W = plotR + padR;
+
+  const GAP = 8;                        // gap between a point and the beam under it
+  const CAP = 1000;                     // the y axis is fixed: $0 to $1,000
+  let model = null, disp = null, raf = null;
+
+  // fA0 / fA1 = the two amounts as a fraction of the axis height. The gridlines
+  // are always the same five lines; only their labels rescale.
+  function readModel() {
     const t = Number.isFinite(+tEl.value) ? +tEl.value : 1;
-    const tp = t - 1;
     const A0 = (+a0El.value) || 0;          // A(t-1)
     const rate = (+iEl2.value) / 100;
     const A1 = A0 * (1 + rate);              // A(t)
-    const It = A1 - A0;
-    const sPrev = `A(${fmtN(tp)})`, sCur = `A(${fmtN(t)})`;
+    const hi = CAP, ticks = [0, 1, 2, 3, 4].map(k => k * CAP / 4);
+    return { t, A0, rate, A1, It: A1 - A0, ticks, hi, fA0: A0 / hi, fA1: A1 / hi };
+  }
 
-    const H = 200, padL = 56, padR = 24, padT = 16, padB = 34;
-    const plotW = 456, plotH = H - padT - padB;
-    const plotR = padL + plotW, W = plotR + padR;
-    // The window is always centred on the two points, so changing t or the
-    // values visibly changes the whole graph, not just its labels.
-    const xLo = tp - 1.5, xHi = t + 1.5;
-    const yMinRaw = Math.min(0, A0, A1), yMaxRaw = Math.max(0, A0, A1);
-    const breathe = (yMaxRaw - yMinRaw) * 0.15 || 0.1;
-    const { ticks, min: lo, max: hi } = niceTicks(yMinRaw < 0 ? yMinRaw - breathe : 0, yMaxRaw + breathe, 5);
-
+  function drawGraph() {
+    const { t, A0, A1, It, ticks } = model;
+    const yF = f => padT + (1 - f) * plotH;
+    const xLo = -0.5, xHi = Math.max(20, t) + 0.5;      // fixed axis
     const xOf = u => padL + ((u - xLo) / (xHi - xLo)) * plotW;
-    const yOf = v => padT + (1 - (v - lo) / (hi - lo)) * plotH;
+    const sPrev = `A(${fmtN(t - 1)})`, sCur = `A(${fmtN(t)})`;
+    const yA0 = yF(disp.fA0), yA1 = yF(disp.fA1), y0 = yF(0);
 
     let grid = '', yLabels = '';
-    for (const v of ticks) {
-      const y = yOf(v);
+    ticks.forEach((v, k) => {
+      const y = yF(k / 4);
       grid += `<line class="grid-line" x1="${padL}" y1="${y}" x2="${plotR}" y2="${y}"/>`;
-      yLabels += `<text class="tick-label" x="${padL-8}" y="${y+3}" text-anchor="end">${cashShort(v)}</text>`;
-    }
+      yLabels += `<text class="tick-label" x="${padL-8}" y="${y+3}" text-anchor="end">$${v.toLocaleString()}</text>`;
+    });
     let xLabels = '';
-    const xT = niceTicks(xLo, xHi, 6).ticks.filter(u => u >= xLo - 1e-9 && u <= xHi + 1e-9 && Math.abs(xOf(u) - xOf(tp)) > 22 && Math.abs(xOf(u) - xOf(t)) > 22);
-    for (const u of xT) xLabels += `<text class="tick-label" x="${xOf(u)}" y="${H-padB+18}" text-anchor="middle">${fmtN(u)}</text>`;
-    xLabels += `<text class="tick-label" style="font-weight:bold" x="${xOf(tp)}" y="${H-padB+18}" text-anchor="middle">${fmtN(tp)}</text>
-                <text class="tick-label" style="font-weight:bold" x="${xOf(t)}" y="${H-padB+18}" text-anchor="middle">${fmtN(t)}</text>`;
-
-    // Blue and red I-beams sit right beside their own point (0 up to its value);
-    // the green one, the gap between them, sits just right of the red one.
-    const capHW = 7;
-    function ibeam(x, v1, v2, color, title) {
-      const a = yOf(v1), b = yOf(v2), top = Math.min(a, b), bot = Math.max(a, b);
-      const tt = `<title>${title}</title>`;
-      if (bot - top < 0.5) return `<line x1="${x-capHW}" y1="${top}" x2="${x+capHW}" y2="${top}" stroke="${color}" stroke-width="2.5">${tt}</line>`;
-      return `<line x1="${x}" y1="${top}" x2="${x}" y2="${bot}" stroke="${color}" stroke-width="2.5">${tt}</line>
-              <line x1="${x-capHW}" y1="${top}" x2="${x+capHW}" y2="${top}" stroke="${color}" stroke-width="2.5">${tt}</line>
-              <line x1="${x-capHW}" y1="${bot}" x2="${x+capHW}" y2="${bot}" stroke="${color}" stroke-width="2.5">${tt}</line>`;
+    const stepX = PHONE ? 5 : Math.max(1, Math.ceil((xHi - xLo) / 22));
+    for (let u = 0; u <= xHi; u += 1) {
+      if (u % stepX !== 0 && u !== t - 1 && u !== t) continue;
+      const on = u === t - 1 ? 'var(--clr-start)' : u === t ? 'var(--clr-end)' : null;
+      xLabels += `<line x1="${xOf(u)}" y1="${y0}" x2="${xOf(u)}" y2="${y0 + 4}" stroke="${on || '#a8977a'}" stroke-width="${on ? 1.6 : 1}"/>
+                  <text class="tick-label" ${on ? `style="font-weight:bold;font-size:12px" fill="${on}"` : ''} x="${xOf(u)}" y="${y0 + 17}" text-anchor="middle">${fmtN(u)}</text>`;
     }
-    const bars = ibeam(xOf(tp) + 16, 0, A0, 'var(--clr-start)', `${sPrev} = ${cashText(A0)}`)
-               + ibeam(xOf(t) + 16, 0, A1, 'var(--clr-end)', `${sCur} = ${cashText(A1)}`)
-               + ibeam(xOf(t) + 40, A0, A1, 'var(--clr-interest)', `I(t) = ${cashText(It)}`);
 
-    const above = yOf(A0) < yOf(A1);
-    const svg = document.getElementById('ex1-chart');
+    // I-beams sit right beside their own point; the green one (the gap between
+    // the two) sits just right of the red one.
+    const capHW = 6;
+    function ibeam(x, ya, yb, color, title, key) {
+      const top = Math.min(ya, yb), bot = Math.max(ya, yb), tt = `<title>${title}</title>`;
+      const hit = `<rect x="${x - 10}" y="${top - 4}" width="20" height="${bot - top + 8}" fill="transparent"/>`;
+      if (bot - top < 0.5) return `<g data-bar="${key}">${hit}<line x1="${x-capHW}" y1="${top}" x2="${x+capHW}" y2="${top}" stroke="${color}" stroke-width="2.5">${tt}</line></g>`;
+      return `<g data-bar="${key}">${hit}<line x1="${x}" y1="${top}" x2="${x}" y2="${bot}" stroke="${color}" stroke-width="2.5">${tt}</line>
+              <line x1="${x-capHW}" y1="${top}" x2="${x+capHW}" y2="${top}" stroke="${color}" stroke-width="2.5">${tt}</line>
+              <line x1="${x-capHW}" y1="${bot}" x2="${x+capHW}" y2="${bot}" stroke="${color}" stroke-width="2.5">${tt}</line></g>`;
+    }
+    const under = (x, yp, color, title, key) => (y0 - (yp + GAP) > 1) ? ibeam(x, yp + GAP, y0, color, title, key) : '';
+    const bars = under(xOf(t - 1), yA0, 'var(--clr-start)', `${sPrev} = ${cashText(A0)}`, 'blue')
+               + under(xOf(t), yA1, 'var(--clr-end)', `${sCur} = ${cashText(A1)}`, 'red')
+               + ibeam(xOf(t) + 24, yA0, yA1, 'var(--clr-interest)', `I(t) = ${cashText(It)}`, 'green');
+
+    // both labels sit above their own point; if the points are close in height
+    // the red one is lifted so the two never collide
+    const blueLabelY = yA0 - 12;
+    const redLabelY = Math.min(yA1 - 12, blueLabelY - 13);
     svg.setAttribute('viewBox', `0 0 ${W} ${H}`);
     svg.innerHTML = `
       ${grid}
-      <line class="axis-line" x1="${padL}" y1="${padT}" x2="${padL}" y2="${H-padB}"/>
-      <line class="axis-line" x1="${padL}" y1="${H-padB}" x2="${plotR}" y2="${H-padB}"/>
+      <line class="axis-line" x1="${padL}" y1="${padT}" x2="${padL}" y2="${y0}"/>
+      <line class="axis-line" x1="${padL}" y1="${y0}" x2="${plotR}" y2="${y0}"/>
       ${yLabels}
       ${xLabels}
-      <text class="axis-title" x="${plotR}" y="${H-padB+30}" text-anchor="end">t</text>
-      <text class="point-label" fill="var(--clr-start)" x="${xOf(tp)}" y="${yOf(A0) + (above ? -12 : 20)}" text-anchor="middle">${sPrev}</text>
-      <text class="point-label" fill="var(--clr-end)" x="${xOf(t)}" y="${yOf(A1) + (above ? 20 : -12)}" text-anchor="middle">${sCur}</text>
-      <circle cx="${xOf(tp)}" cy="${yOf(A0)}" r="5" fill="var(--clr-start)" stroke="#f1e9d8" stroke-width="1.5"><title>${sPrev} = ${cashText(A0)}</title></circle>
-      <circle cx="${xOf(t)}" cy="${yOf(A1)}" r="5" fill="var(--clr-end)" stroke="#f1e9d8" stroke-width="1.5"><title>${sCur} = ${cashText(A1)}</title></circle>
+      <text class="axis-title" x="${plotR}" y="${y0 + 30}" text-anchor="end">t</text>
+      <text class="point-label" fill="var(--clr-start)" x="${xOf(t - 1)}" y="${blueLabelY}" text-anchor="middle">${sPrev}</text>
+      <text class="point-label" fill="var(--clr-end)" x="${xOf(t)}" y="${redLabelY}" text-anchor="middle">${sCur}</text>
+      <circle cx="${xOf(t - 1)}" cy="${yA0}" r="5" fill="var(--clr-start)" stroke="#f1e9d8" stroke-width="1.5"><title>${sPrev} = ${cashText(A0)}</title></circle>
+      <circle cx="${xOf(t)}" cy="${yA1}" r="5" fill="var(--clr-end)" stroke="#f1e9d8" stroke-width="1.5"><title>${sCur} = ${cashText(A1)}</title></circle>
       ${bars}
     `;
+  }
 
+  // The bars in the equation are the graph's bars at the same on-screen size.
+  function drawBarRow() {
+    const sc = svg.getBoundingClientRect().width / W || 1;
+    const hOf = f => Math.max(0, f * plotH * sc);
+    const lenOf = f => Math.max(0, hOf(f) - GAP * sc);      // beams under the points start GAP below them
+    barRow.innerHTML = `
+      <div class="bar-item" data-bar="green">${barIcon('#3a7d44', hOf(disp.fA1 - disp.fA0), sc)}</div>
+      <span class="bar-op">=</span>
+      <div class="bar-item" data-bar="red">${barIcon('#a63d2f', lenOf(disp.fA1), sc)}</div>
+      <span class="bar-op">&minus;</span>
+      <div class="bar-item" data-bar="blue">${barIcon('#2c4870', lenOf(disp.fA0), sc)}</div>`;
+  }
+
+  function updateText() {
+    const { t, A0, rate, A1, It } = model;
+    const sPrev = `A(${fmtN(t - 1)})`, sCur = `A(${fmtN(t)})`;
     const itRate = A0 !== 0 ? It / A0 : 0;
     const A0sym = blue(sPrev), A0val = blue(texCash(A0));
     const A1sym = red(sCur),  A1val = red(texCash(A1));
@@ -547,26 +638,64 @@ function niceTicks(dataMin, dataMax, maxTicks) {
     document.getElementById('ex1-a1-line').innerHTML =
       K(`${A1sym} = ${A0sym}(1+i) = ${A0val}(1+${texPct(rate)}) = ${A1val}`);
     document.getElementById('ex1-it-line').innerHTML =
-      K(`i(t) = \\dfrac{${Itsym}}{${A0sym}} = \\dfrac{${texCash(It)}}{${A0val}} = ${texPct(itRate)}`);
+      K(`i(t) = \\dfrac{${Itsym}}{${A0sym}} = \\dfrac{${green(texCash(It))}}{${A0val}} = ${texPct(itRate)}`);
+    document.getElementById('ex1-numeq').innerHTML = Kd(`${green(texCash(It))} = ${A1val} - ${A0val}`);
     document.getElementById('ex1-It-line').innerHTML =
-      K(`${Itsym} = ${A1sym} - ${A0sym} = ${A1val} - ${A0val} = ${texCash(It)}`);
-
-    // Same dollars-to-pixels scale as the graph, so each bar here is exactly
-    // as tall as its counterpart on the chart.
-    const pxPer = plotH / (hi - lo);
-    const hOf = v => Math.max(0, Math.abs(v) * pxPer);
-    document.getElementById('ex1-bar-line').innerHTML = `
-      <div class="bar-item">${barIcon('#3a7d44', hOf(It))}</div>
-      <span class="bar-op">=</span>
-      <div class="bar-item">${barIcon('#a63d2f', hOf(A1))}</div>
-      <span class="bar-op">&minus;</span>
-      <div class="bar-item">${barIcon('#2c4870', hOf(A0))}</div>`;
+      K(`${Itsym} = ${A1sym} - ${A0sym} = ${A1val} - ${A0val} = ${green(texCash(It))}`);
   }
 
-  tEl.addEventListener('input', renderExhibit1);
-  a0El.addEventListener('input', renderExhibit1);
-  iEl2.addEventListener('input', renderExhibit1);
-  renderExhibit1();
+  // Everything follows the inputs directly (no easing), redrawn at most once per frame.
+  function frame() { drawGraph(); drawBarRow(); }
+  let queued = false;
+  function schedule() {
+    if (queued) return;
+    queued = true;
+    requestAnimationFrame(() => { queued = false; updateText(); frame(); });
+  }
+
+  // A(t-1)(1+i) can never pass the top of the axis. The slider ranges stay fixed
+  // (so the thumbs never jump); the one being dragged simply stops at the cap.
+  function limit(src) {
+    const A0 = +a0El.value || 0, r = (+iEl2.value) / 100;
+    if (A0 * (1 + r) > CAP + 1e-9) {
+      if (src === 'i') { iEl2.value = iS.value = Math.max(0, Math.floor(100 * (CAP / A0 - 1))); }
+      else { a0El.value = aS.value = Math.max(1, Math.floor(CAP / (1 + r))); }
+    }
+  }
+
+  // The track of each slider ends at the biggest value the OTHER inputs allow, so
+  // you can always drag to the very end. It is refreshed when an input is let go,
+  // so nothing slides under your finger while you drag.
+  function syncRanges() {
+    const A = Math.max(1, +a0El.value || 1), ii = (+iEl2.value) / 100;
+    aS.max = Math.max(1, Math.floor(CAP / (1 + ii)));
+    iS.max = Math.min(1000, Math.max(0, Math.floor(100 * (CAP / A - 1))));
+  }
+
+  function update(src) {
+    limit(src);
+    model = readModel();
+    disp = { fA0: model.fA0, fA1: model.fA1 };
+    schedule();
+  }
+
+  const link = (num, sld, src) => {
+    sld.addEventListener('input', () => { num.value = sld.value; update(src); });
+    num.addEventListener('input', () => { if (num.value !== '') sld.value = num.value; update(src); });
+    [sld, num].forEach(el => el.addEventListener('change', syncRanges));
+  };
+  link(tEl, tS, 't'); link(a0El, aS, 'a'); link(iEl2, iS, 'i');
+
+  // hovering any of the six bars (three on the graph, three in the equation)
+  // bolds that colour's symbols and dollar amounts everywhere in Exhibit 1
+  const scope = document.querySelector('.intro-row');
+  const setHover = key => { scope.classList.remove('hov-blue', 'hov-red', 'hov-green'); if (key) scope.classList.add('hov-' + key); };
+  [svg, barRow].forEach(el => {
+    el.addEventListener('mouseover', e => { const b = e.target.closest('[data-bar]'); setHover(b ? b.dataset.bar : null); });
+    el.addEventListener('mouseleave', () => setHover(null));
+  });
+  window.addEventListener('resize', () => { if (disp) drawBarRow(); });
+  update('t'); syncRanges(); updateText(); frame();
 })();
 
 /* ── Exhibit 2: compound vs. simple interest over n periods ────────── */
@@ -666,23 +795,37 @@ function niceTicks(dataMin, dataMax, maxTicks) {
   // The two derivations are purely symbolic — they don't depend on the
   // exhibit's live inputs, so they're written once rather than re-rendered
   // on every keystroke.
+  // Every line of prose is the same plain text style (T); only the maths is KaTeX.
+  const T = (text, math) => `<div class="deriv-prose">${text}${math ? ' ' + K(math) : ''}</div>`;
+  const cG = x => `\\textcolor{#3a7d44}{${x}}`, cR = x => `\\textcolor{#a63d2f}{${x}}`, cB = x => `\\textcolor{#2c4870}{${x}}`;
+  const It = cG('I(t)'), At = cR('A(t)'), Ap = cB('A(t-1)');
+
   document.getElementById('ex2-compound-deriv').innerHTML = `
     <div class="deriv-label">Derivation</div>
-    ${Kd('\\begin{aligned} i_t &= \\dfrac{\\textcolor{#3a7d44}{I(t)}}{A(t-1)} \\\\[6pt] &= \\dfrac{\\textcolor{#3a7d44}{A(t)-A(t-1)}}{A(t-1)} \\end{aligned}')}
-    ${Kd('\\Rightarrow \\quad A(t) = A(t-1)(1+i_t)')}
-    ${Kd('\\text{Since } i_t = i \\text{ is constant every period, applying this recursively:}')}
-    ${Kd('\\begin{aligned} A(t) &= A(t-1)(1+i) \\\\ &= A(t-2)(1+i)^2 \\\\ &= \\cdots \\\\ &= A(0)(1+i)^t \\end{aligned}')}
-    ${Kd('\\Rightarrow \\quad A(t) = A(0)(1+i)^t')}
+    ${T('Interest accrues on the current balance:', `${It} = i\\cdot ${Ap}`)}
+    ${T('By definition:', `${It} = ${At} - ${Ap}`)}
+    ${T('Setting them equal:', `${At} - ${Ap} = i\\cdot ${Ap}`)}
+    ${Kd(`\\Rightarrow \\quad ${At} = ${Ap} + i\\cdot ${Ap}`)}
+    ${Kd(`\\Rightarrow \\quad ${At} = ${Ap}(1+i)`)}
+    ${T('Then the rate earned in period ' + K('t') + ' is:')}
+    ${Kd(`\\begin{aligned} i_t &= \\dfrac{${It}}{${Ap}} \\\\[6pt] &= \\dfrac{i\\cdot ${Ap}}{${Ap}} = i \\end{aligned}`)}
+    ${T('So ' + K('i_t = i') + ' is the same every period: each period multiplies the balance by ' + K('(1+i)') + '. Applying this recursively:')}
+    ${Kd(`\\begin{aligned} ${At} &= ${Ap}(1+i) \\\\ &= A(t-2)(1+i)^2 \\\\ &= A(t-3)(1+i)^3 \\\\ &= \\cdots \\\\ &= A(0)(1+i)^t \\end{aligned}`)}
+    ${Kd(`\\Rightarrow \\quad ${At} = A(0)(1+i)^t`)}
   `;
 
   document.getElementById('ex2-simple-deriv').innerHTML = `
     <div class="deriv-label">Derivation</div>
-    ${Kd('\\text{Interest accrues only on the original principal:}')}
-    ${Kd('\\textcolor{#3a7d44}{I(t)} = i\\cdot A(0)')}
-    ${Kd('\\Rightarrow \\quad A(t) = A(t-1) + i\\cdot A(0)')}
-    ${Kd('\\text{Applying this recursively:}')}
-    ${Kd('\\begin{aligned} A(t) &= A(t-1)+iA(0) \\\\ &= A(t-2)+2iA(0) \\\\ &= \\cdots \\\\ &= A(0) + t\\cdot i\\cdot A(0) \\end{aligned}')}
-    ${Kd('\\Rightarrow \\quad A(t) = A(0)(1+ti)')}
+    ${T('Interest accrues only on the original principal:', `${It} = i\\cdot A(0)`)}
+    ${T('By definition:', `${It} = ${At} - ${Ap}`)}
+    ${T('Setting them equal:', `${At} - ${Ap} = i\\cdot A(0)`)}
+    ${Kd(`\\Rightarrow \\quad ${At} = ${Ap} + i\\cdot A(0)`)}
+    ${T('Then the rate earned in period ' + K('t') + ' is:')}
+    ${Kd(`\\begin{aligned} i_t &= \\dfrac{${It}}{${Ap}} \\\\[6pt] &= \\dfrac{i\\cdot A(0)}{${Ap}} \\end{aligned}`)}
+    ${Kd(`\\Rightarrow \\quad ${At} = ${Ap}(1+i_t)`)}
+    ${T('Applying the recursion:')}
+    ${Kd(`\\begin{aligned} ${At} &= ${Ap}+iA(0) \\\\ &= A(t-2)+2iA(0) \\\\ &= \\cdots \\\\ &= A(0) + t\\cdot i\\cdot A(0) \\end{aligned}`)}
+    ${Kd(`\\Rightarrow \\quad ${At} = A(0)(1+ti)`)}
   `;
 })();
 
@@ -756,7 +899,7 @@ function niceTicks(dataMin, dataMax, maxTicks) {
       for (let t = 0; t <= n; t++) {
         dots += `<circle class="ex3-ref-dot" data-idx="${idx}" data-t="${t}" cx="${xOf(t)}" cy="${yOf(valueAt(p.t0, t))}" r="4" fill="${p.color}" opacity="0.4"><title></title></circle>`;
       }
-      markers += `<circle class="ex3-drag-pt" data-idx="${idx}" r="9" fill="${p.color}" stroke="#f1e9d8" stroke-width="2.5" style="cursor:grab; touch-action:none;"></circle>`;
+      markers += `<circle class="ex3-drag-pt" data-idx="${idx}" r="${COARSE ? 13 : 9}" fill="${p.color}" stroke="#f1e9d8" stroke-width="2.5" style="cursor:grab; touch-action:none;"></circle>`;
     });
 
     let totalDots = '';
@@ -793,12 +936,16 @@ function niceTicks(dataMin, dataMax, maxTicks) {
   function showDel(el, idx) {
     if (points.length <= 1) return;
     clearTimeout(delTimer);
-    const wrapRect = document.querySelector('.ex3-chart-wrap').getBoundingClientRect();
-    const r = el.getBoundingClientRect();
     delIdx = idx;
-    delBtn.style.left = (r.right - wrapRect.left) + 'px';
-    delBtn.style.top = (r.top - wrapRect.top) + 'px';
+    placeDel(el);
     delBtn.style.display = 'block';
+  }
+  // Sits on the dot's rim (upper right, 45 degrees), so it reads as part of the dot.
+  function placeDel(el) {
+    const wrapRect = document.querySelector('.ex3-chart-wrap').getBoundingClientRect();
+    const r = el.getBoundingClientRect(), rad = r.width / 2;
+    delBtn.style.left = (r.left + rad + rad * 0.7071 - wrapRect.left) + 'px';
+    delBtn.style.top = (r.top + rad - rad * 0.7071 - wrapRect.top) + 'px';
   }
   function hideDelSoon() { clearTimeout(delTimer); delTimer = setTimeout(() => { delBtn.style.display = 'none'; }, 350); }
   delBtn.addEventListener('mouseenter', () => clearTimeout(delTimer));
@@ -954,20 +1101,31 @@ function niceTicks(dataMin, dataMax, maxTicks) {
   function onPointerDown(evt) {
     draggingIdx = +evt.currentTarget.dataset.idx;
     evt.currentTarget.style.cursor = 'grabbing';
+    if (evt.pointerType === 'touch' && points.length > 1) showDel(evt.currentTarget, draggingIdx);   // no hover on a phone: touching the dot shows its x
     setT0FromPointer(draggingIdx, evt);
     evt.preventDefault(); // stops the browser starting a text/image drag-select mid-gesture
   }
-  function onPointerMove(evt) { if (draggingIdx >= 0) setT0FromPointer(draggingIdx, evt); }
-  function onPointerUp() {
+  function onPointerMove(evt) {
+    if (draggingIdx < 0) return;
+    setT0FromPointer(draggingIdx, evt);
+    // the x stays glued to the dot for the whole drag
+    const marker = document.querySelector(`.ex3-drag-pt[data-idx="${draggingIdx}"]`);
+    if (marker && points.length > 1) { clearTimeout(delTimer); delIdx = draggingIdx; placeDel(marker); delBtn.style.display = 'block'; }
+  }
+  function onPointerUp(evt) {
     if (draggingIdx < 0) return;
     const marker = document.querySelector(`.ex3-drag-pt[data-idx="${draggingIdx}"]`);
     if (marker) marker.style.cursor = 'grab';
     draggingIdx = -1;
+    if (marker && !marker.matches(':hover') && !(evt && evt.pointerType === 'touch')) hideDelSoon();
   }
 
   // Listening on window — not just the SVG — means the drag keeps tracking
   // the mouse anywhere on the page, not only while the cursor stays inside
   // the chart's own small rendered rectangle.
+  document.addEventListener('pointerdown', e => {   // touch: tapping anywhere else puts the x away
+    if (e.pointerType === 'touch' && !e.target.closest('.ex3-drag-pt, #ex3-del-btn')) delBtn.style.display = 'none';
+  });
   window.addEventListener('pointermove', onPointerMove);
   window.addEventListener('pointerup', onPointerUp);
   window.addEventListener('pointercancel', onPointerUp);
@@ -1047,6 +1205,7 @@ function niceTicks(dataMin, dataMax, maxTicks) {
     return (v < 0 ? '-' : '') + '$' + Math.abs(v).toLocaleString(undefined, { minimumFractionDigits: d, maximumFractionDigits: d });
   }
   function redraw(svg) {
+    svg.style.touchAction = views[svg.id] && !svg.dataset.animating ? 'none' : 'pan-y';
     if (!svg.dataset.panning) svg.style.cursor = views[svg.id] && !svg.dataset.animating ? 'grab' : 'default';
     if (svg === pvSvg) renderChart(pvSvg, lastPvPoints, 'var(--clr-start)', 'var(--clr-start)', pvSelected);
     else renderChart(fvSvg, lastFvPoints, 'var(--clr-end)', 'var(--clr-end)', fvSelected);
@@ -1150,6 +1309,15 @@ function niceTicks(dataMin, dataMax, maxTicks) {
       dot.addEventListener('mouseleave', restBaseline);
     });
 
+    // touch screens: an invisible, much bigger circle over each dot to tap
+    if (COARSE) svg.querySelectorAll('.ex4-pay-dot').forEach(dot => {
+      const h = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+      h.setAttribute('class', 'ex4-hit'); h.setAttribute('cx', dot.getAttribute('cx')); h.setAttribute('cy', dot.getAttribute('cy'));
+      h.setAttribute('r', '18'); h.setAttribute('fill', 'transparent');
+      h.addEventListener('click', evt => { evt.stopPropagation(); dot.dispatchEvent(new MouseEvent('click')); });
+      svg.appendChild(h);
+    });
+
     chartUpdaters[svg.id] = { restBaseline, updateSelectionVisuals };
   }
 
@@ -1183,11 +1351,11 @@ function niceTicks(dataMin, dataMax, maxTicks) {
 
     // drag the background to pan (no text/label selection while dragging)
     let pan = null;
-    svg.style.cursor = 'default'; svg.style.touchAction = 'none';
+    svg.style.cursor = 'default'; svg.style.touchAction = 'pan-y';
     svg.style.userSelect = 'none'; svg.style.webkitUserSelect = 'none';
     svg.addEventListener('selectstart', e => e.preventDefault());
     svg.addEventListener('pointerdown', evt => {
-      if (evt.target.closest('.ex4-pay-dot, .ex4-lump-dot')) return;   // dots handle their own clicks
+      if (evt.target.closest('.ex4-pay-dot, .ex4-lump-dot, .ex4-hit')) return;   // dots handle their own clicks
       const cv = views[svg.id], dv = defaultView();
       // locked at the default view; unlocks once + or − has changed the window
       if (!cv || svg.dataset.animating || (Math.abs(cv.x0 - dv.x0) + Math.abs(cv.x1 - dv.x1) + Math.abs(cv.y0 - dv.y0) + Math.abs(cv.y1 - dv.y1) < 1e-6)) return;
@@ -1255,66 +1423,88 @@ function niceTicks(dataMin, dataMax, maxTicks) {
   // of arbitrary ones, which is what makes the closed form possible.
   document.getElementById('ex4-fv-deriv').innerHTML = `
     <div class="deriv-label">Derivation</div>
-    ${Kd('FV = PMT(1+i)^{n-1} + PMT(1+i)^{n-2} + \\cdots + PMT(1+i) + PMT')}
+    ${Kd('\\begin{aligned} FV &= PMT(1+i)^{n-1} + PMT(1+i)^{n-2} \\\\ &\\quad + \\cdots + PMT(1+i) + PMT \\end{aligned}')}
     ${Kd('\\text{A geometric series, ratio } (1+i):')}
     ${Kd('\\Rightarrow \\quad FV = PMT\\cdot\\dfrac{(1+i)^{n}-1}{i}')}
   `;
   document.getElementById('ex4-pv-deriv').innerHTML = `
     <div class="deriv-label">Derivation</div>
-    ${Kd('PV = PMT(1+i)^{-1} + PMT(1+i)^{-2} + \\cdots + PMT(1+i)^{-n}')}
+    ${Kd('\\begin{aligned} PV &= PMT(1+i)^{-1} + PMT(1+i)^{-2} \\\\ &\\quad + \\cdots + PMT(1+i)^{-n} \\end{aligned}')}
     ${Kd('\\text{A geometric series, ratio } (1+i)^{-1}:')}
     ${Kd('\\Rightarrow \\quad PV = PMT\\cdot\\dfrac{1-(1+i)^{-n}}{i}')}
   `;
 
   render();
 })();
-/* ── Exhibit 5: payments on a time diagram, discounted / accumulated ── */
+/* ── Exhibit 5: payments on a time diagram — accumulate, discount the stack, accumulate back ── */
 (function() {
   const pEl = document.getElementById('ex5-p'), iEl = document.getElementById('ex5-i'), nEl = document.getElementById('ex5-n');
-  const svg = document.getElementById('ex5-chart'), amtEl = document.getElementById('ex5-amounts');
-  const btnD = document.getElementById('ex5-play-d'), btnA = document.getElementById('ex5-play-a'), btnR = document.getElementById('ex5-reset');
+  const svg = document.getElementById('ex5-chart'), amtEl = document.getElementById('ex5-amounts'), phaseEl = document.getElementById('ex5-phase');
+  const btnP = document.getElementById('ex5-play'), btnR = document.getElementById('ex5-reset');
   const W = 640, H = 300, padL = 70, padR = 30, padT = 24, padB = 44;
   const plotW = W - padL - padR, plotH = H - padT - padB;
   const COLORS = ['#2c4870', '#a63d2f', '#3a7d44', '#7c4a9e', '#b8860b', '#16808a', '#8a4b2a', '#556b2f'];
+  // Step 1: each payment accumulates one at a time to t = n and stacks.
   const STAGE = 650, SETTLE = 650, GAP = 200;
-  let raf = null, mode = null, P = 100, rate = 0.08, n = 5;
+  // Step 2: the whole stack slides back to t = 0, shrinking by v each period.
+  const PAUSE_B = 500, STAGE_B = 520;
+  // Step 3: after a pause, each colour accumulates back to its own time.
+  const PAUSE_C = 1100, STAGE_C = 650, GAP_C = 200, DROP = 350;
+  let raf = null, mode = false, P = 10, rate = 0.8, n = 5, tl = null;
 
   function readInputs() {
     P = (+pEl.value) || 0; rate = (+iEl.value) / 100;
     n = Math.max(1, Math.min(Math.round(+nEl.value) || 1, 30));
   }
-  // Discount: payment k steps left k times, each step multiplying by v.
-  // Accumulate: payment k steps right (n-k) times, each multiplying by (1+i).
-  const factor = m => m === 'd' ? 1 / (1 + rate) : 1 + rate;
-  const stages = (m, k) => m === 'd' ? k : n - k;
-  const finalVal = (m, k) => P * Math.pow(factor(m), stages(m, k));
 
-  function plan(m) {
-    const items = []; let start = 0, base = 0;
+  function build() {
+    const g = 1 + rate, v = 1 / g;
+    const A = []; let start = 0, base = 0;
     for (let k = 1; k <= n; k++) {
-      const st = stages(m, k), moveMs = st * STAGE, dur = moveMs + SETTLE;
-      const val = finalVal(m, k);
-      items.push({ k, st, start, moveMs, dur, val, base });
-      base += val; start += dur + GAP;
+      const st = n - k, moveMs = st * STAGE, val = P * Math.pow(g, st);
+      A.push({ k, st, start, moveMs, val, base });
+      base += val; start += moveMs + SETTLE + GAP;
     }
-    return { items, total: base, end: start };
+    const endA = start, totalN = base;
+    const B0 = endA + PAUSE_B, B1 = B0 + n * STAGE_B, C0 = B1 + PAUSE_C;
+    const C = []; let cs = C0, pv = 0;
+    for (let k = 1; k <= n; k++) {
+      const moveMs = k * STAGE_C, disc = P * Math.pow(v, k);
+      C.push({ k, start: cs, moveMs, disc });
+      pv += disc; cs += moveMs + GAP_C;
+    }
+    return { g, v, A, endA, totalN, B0, B1, C0, C, pv, end: cs - GAP_C };
   }
 
-  function stateOf(m, it, t) {
-    const f = factor(m), local = t - it.start, target = m === 'd' ? 0 : n;
-    if (local < 0) return { x: it.k, val: P, base: 0, phase: 'wait' };
-    if (local < it.moveMs) {
-      const e = local / STAGE;
-      return { x: m === 'd' ? it.k - e : it.k + e, val: P * Math.pow(f, e), base: 0, phase: 'move' };
+  // Each item -> {x, val, base, kind}, kind: wait | move | stack | bar | done
+  function stateAt(t) {
+    const { g, v, A, B0, B1, C0, C } = tl;
+    if (t < B0) {
+      return { phase: 'A', items: A.map(it => {
+        const local = t - it.start;
+        if (local < 0) return { k: it.k, x: it.k, val: P, base: 0, kind: 'wait' };
+        if (local < it.moveMs) { const e = local / STAGE; return { k: it.k, x: it.k + e, val: P * Math.pow(g, e), base: 0, kind: 'move' }; }
+        const u = Math.min(1, (local - it.moveMs) / SETTLE);
+        return { k: it.k, x: n, val: it.val, base: it.base * u, kind: 'stack' };
+      }) };
     }
-    const u = Math.min(1, (local - it.moveMs) / SETTLE);
-    return { x: target, val: it.val, base: it.base * u, phase: u >= 1 ? 'done' : 'settle' };
+    if (t < C0) {
+      const u = Math.min(1, (t - B0) / (B1 - B0)), f = Math.pow(v, n * u), x = n * (1 - u);
+      return { phase: 'B', u, items: A.map(it => ({ k: it.k, x, val: it.val * f, base: it.base * f, kind: 'stack' })) };
+    }
+    return { phase: 'C', items: C.map((it, idx) => {
+      const local = t - it.start;
+      if (local >= it.moveMs) return { k: it.k, x: it.k, val: P, base: 0, kind: 'done' };
+      if (local >= 0) { const e = local / STAGE_C; return { k: it.k, x: e, val: it.disc * Math.pow(g, e), base: 0, kind: 'move' }; }
+      let base = 0;
+      for (let m = 0; m < idx; m++) { const d = t - C[m].start; base += C[m].disc * (d <= 0 ? 1 : 1 - Math.min(1, d / DROP)); }
+      return { k: it.k, x: 0, val: it.disc, base, kind: 'stack' };
+    }) };
   }
 
   function draw(t) {
-    const m = mode || 'd';
-    const pl = plan(m);
-    const yMax = Math.max(P, pl.total, 1) * 1.12;
+    const tlm = tl;
+    const yMax = Math.max(P, tlm.totalN, 1) * 1.12;
     const { ticks, min: lo, max: hi } = niceTicks(0, yMax, 5);
     const xOf = x => padL + (x / n) * plotW;
     const yOf = v => padT + (1 - (v - lo) / (hi - lo)) * plotH;
@@ -1324,52 +1514,68 @@ function niceTicks(dataMin, dataMax, maxTicks) {
     for (let x = 0; x <= n; x += step) g += `<text class="tick-label" x="${xOf(x)}" y="${H-padB+18}" text-anchor="middle">${x}</text>`;
     g += `<line class="axis-line" x1="${padL}" y1="${padT}" x2="${padL}" y2="${H-padB}"/><line class="axis-line" x1="${padL}" y1="${H-padB}" x2="${W-padR}" y2="${H-padB}"/><text class="axis-title" x="${W-padR}" y="${H-padB+34}" text-anchor="end">t</text>`;
 
-    let stack = '', moving = '', done = 0, rows = '';
-    pl.items.forEach(it => {
-      const c = COLORS[(it.k - 1) % COLORS.length];
-      const s = mode ? stateOf(m, it, t) : { x: it.k, val: P, base: 0, phase: 'wait' };
-      const settled = s.phase === 'settle' || s.phase === 'done';
-      if (settled) {
-        stack += `<rect x="${xOf(s.x) - 10}" y="${yOf(s.base + s.val)}" width="20" height="${Math.max(0, yOf(s.base) - yOf(s.base + s.val))}" fill="${c}" opacity="0.85"><title>${cashText(s.val)}</title></rect>`;
+    const S = mode ? stateAt(t) : { phase: 'idle', items: tlm.A.map(it => ({ k: it.k, x: it.k, val: P, base: 0, kind: 'dot' })) };
+    let body = '', rows = '', stackTop = null;
+    const gStr = '(1+i)';
+    S.items.forEach(s => {
+      const c = COLORS[(s.k - 1) % COLORS.length], bx = xOf(s.x);
+      const bar = (op) => `<rect x="${bx - 10}" y="${yOf(s.base + s.val)}" width="20" height="${Math.max(0, yOf(s.base) - yOf(s.base + s.val))}" fill="${c}" opacity="${op}"><title>${cashText(s.val)}</title></rect>`;
+      const label = (yv, dy) => `<text class="point-label" fill="${c}" x="${bx}" y="${yOf(yv) - dy}" text-anchor="middle">${cashText(s.val)}</text>`;
+      if (s.kind === 'dot') {
+        body += `<line x1="${bx}" y1="${yOf(0)}" x2="${bx}" y2="${yOf(s.val)}" stroke="${c}" stroke-width="1.5" stroke-dasharray="4,4"/>
+                 <circle cx="${bx}" cy="${yOf(s.val)}" r="6" fill="${c}"><title>${cashText(s.val)}</title></circle>` + label(s.val, 11);
+      } else if (s.kind === 'stack') {
+        body += bar(0.85);
+        stackTop = Math.max(stackTop === null ? -Infinity : stackTop, s.base + s.val);
       } else {
-        const bh = Math.max(0, yOf(0) - yOf(s.val)), bx = xOf(s.x), wait = s.phase === 'wait';
-        if (!mode) moving += `<line x1="${bx}" y1="${yOf(0)}" x2="${bx}" y2="${yOf(s.val)}" stroke="${c}" stroke-width="1.5" stroke-dasharray="4,4"/>
-                   <circle cx="${bx}" cy="${yOf(s.val)}" r="6" fill="${c}"><title>${cashText(s.val)}</title></circle>
-                   <text class="point-label" fill="${c}" x="${bx}" y="${yOf(s.val) - 11}" text-anchor="middle">${cashText(s.val)}</text>`;
-        else moving += `<line x1="${bx}" y1="${yOf(0)}" x2="${bx}" y2="${padT}" stroke="${c}" stroke-width="1" stroke-dasharray="4,4" opacity="0.5"/>
-                   <rect x="${bx - 10}" y="${yOf(s.val)}" width="20" height="${bh}" fill="${c}" opacity="${wait ? 0.5 : 0.85}"><title>${cashText(s.val)}</title></rect>
-                   <text class="point-label" fill="${c}" x="${bx}" y="${yOf(s.val) - 6}" text-anchor="middle">${cashText(s.val)}</text>`;
+        if (S.phase === 'A' || (S.phase === 'C' && s.kind !== 'done')) {
+          const gx = S.phase === 'C' ? xOf(s.k) : bx;
+          body += `<line x1="${gx}" y1="${yOf(0)}" x2="${gx}" y2="${padT}" stroke="${c}" stroke-width="1" stroke-dasharray="4,4" opacity="0.4"/>`;
+        }
+        body += bar(s.kind === 'wait' ? 0.5 : 0.85) + label(s.val, 6);
       }
-      if (s.phase === 'done') done++;
-      const started = mode && s.phase !== 'wait';
-      const val = started ? texCash(s.phase === 'move' ? s.val : it.val) : '\\ldots';
-      const money = texCash(P);
-      const eq = m === 'd'
-        ? `\\text{Receiving } ${money} \\text{ at } t=${it.k} \\text{ is worth } P\\,v^{${it.st}} = ${val} \\text{ at } t=0`
-        : `\\text{Investing } ${money} \\text{ at } t=${it.k} \\text{ is worth } P(1+i)^{${it.st}} = ${val} \\text{ at } t=${n}`;
-      rows += `<div class="${started ? 'row-done' : 'row-wait'}" style="${started ? 'color:' + c : ''}">${K(eq)}</div>`;
     });
-    svg.innerHTML = g + stack + moving;
-    const allDone = mode && done === n;
-    amtEl.innerHTML = rows + (allDone
-      ? `<div class="row-done" style="margin-top:6px">${K(m === 'd' ? `\\text{Present value at } t=0 = ${texCash(pl.total)}` : `\\text{Accumulated value at } t=${n} = ${texCash(pl.total)}`)}</div>`
-      : '');
+    if (stackTop !== null) {
+      const total = S.items.filter(s => s.kind === 'stack').reduce((a, s) => a + s.val, 0);
+      const sx = xOf(S.items.find(s => s.kind === 'stack').x);
+      body += `<text class="point-label" fill="#2c2416" x="${sx}" y="${yOf(stackTop) - 6}" text-anchor="middle">${cashText(total)}</text>`;
+    }
+
+    const started = s => S.phase !== 'A' || s.kind !== 'wait';
+    S.items.forEach(s => {
+      const c = COLORS[(s.k - 1) % COLORS.length], money = texCash(P);
+      const val = mode && started(s) ? texCash(s.val) : '\\ldots';
+      let eq;
+      if (S.phase === 'B') eq = `\\text{Payment at } t=${s.k}:\\; P${gStr}^{${n - s.k}}\\,v^{${n}} = Pv^{${s.k}} = ${val} \\text{ at } t=0`;
+      else if (S.phase === 'C') eq = `\\text{Payment at } t=${s.k}:\\; Pv^{${s.k}}${gStr}^{${s.k}} = ${val} \\text{ at } t=${s.k}`;
+      else eq = `\\text{Investing } ${money} \\text{ at } t=${s.k} \\text{ is worth } P${gStr}^{${n - s.k}} = ${val} \\text{ at } t=${n}`;
+      const on = mode && started(s);
+      rows += `<div class="${on ? 'row-done' : 'row-wait'}" style="${on ? 'color:' + c : ''}">${K(eq)}</div>`;
+    });
+    if (mode && t >= tlm.endA) rows += `<div class="row-done" style="margin-top:6px">${K(`\\text{Accumulated value at } t=${n} = ${texCash(tlm.totalN)}`)}</div>`;
+    if (mode && t >= tlm.B1) rows += `<div class="row-done">${K(`\\text{Present value at } t=0 = ${texCash(tlm.pv)}`)}</div>`;
+
+    phaseEl.textContent = !mode ? '' :
+      S.phase === 'A' ? 'Step 1 — accumulate every payment forward to t = n' :
+      S.phase === 'B' ? (t < tlm.B0 ? '' : 'Step 2 — discount the whole stack back to t = 0') :
+      'Step 3 — accumulate each payment back to where it started';
+    svg.innerHTML = g + body;
+    amtEl.innerHTML = rows;
   }
 
-  function stop() { if (raf) cancelAnimationFrame(raf); raf = null; btnD.disabled = btnA.disabled = false; }
-  function play(m) {
-    stop(); readInputs(); mode = m;
-    btnD.disabled = btnA.disabled = true;
-    const end = plan(m).end, t0 = performance.now();
+  function stop() { if (raf) cancelAnimationFrame(raf); raf = null; btnP.disabled = false; }
+  function play() {
+    stop(); readInputs(); tl = build(); mode = true;
+    btnP.disabled = true;
+    const t0 = performance.now();
     (function tick(now) {
-      const tau = now - t0; draw(Math.min(tau, end));
-      if (tau < end) raf = requestAnimationFrame(tick); else { raf = null; btnD.disabled = btnA.disabled = false; }
+      const tau = now - t0; draw(Math.min(tau, tl.end));
+      if (tau < tl.end) raf = requestAnimationFrame(tick); else { raf = null; btnP.disabled = false; }
     })(t0);
   }
-  function reset() { stop(); readInputs(); mode = null; draw(0); }
+  function reset() { stop(); readInputs(); tl = build(); mode = false; draw(0); }
 
-  btnD.addEventListener('click', () => play('d'));
-  btnA.addEventListener('click', () => play('a'));
+  btnP.addEventListener('click', play);
   btnR.addEventListener('click', reset);
   [pEl, iEl, nEl].forEach(el => el.addEventListener('input', reset));
   reset();
