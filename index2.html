@@ -3,6 +3,29 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<script>
+/* Phones (touch screens with a small screen): the page asks to be held sideways, and in landscape it
+   lays itself out like the desktop page (a 1400px wide layout, scaled to fit). Computers are untouched. */
+(function () {
+  var meta = document.querySelector('meta[name=viewport]');
+  var phone = matchMedia('(pointer: coarse)').matches && Math.min(screen.width, screen.height) <= 820;
+  window.__LAND_PHONE = false;
+  if (!phone) return;
+  var portrait = function () { return matchMedia('(orientation: portrait)').matches; };
+  var was = portrait();
+  window.__LAND_PHONE = !was;
+  function apply() {
+    var p = portrait();
+    if (p !== was) { location.reload(); return; }          // the layout is chosen at load, so switching sides reloads
+    meta.setAttribute('content', p ? 'width=device-width, initial-scale=1' : 'width=1400');
+    document.documentElement.classList.toggle('rotate-me', p);
+    try { if (!p && screen.orientation && screen.orientation.lock) screen.orientation.lock('landscape').catch(function () {}); } catch (e) {}
+  }
+  apply();
+  addEventListener('orientationchange', function () { setTimeout(apply, 120); });
+  addEventListener('resize', apply);
+})();
+</script>
 <title>Interest Theory</title>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
 <script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
@@ -124,6 +147,7 @@ svg.chart { display: block; width: 100%; height: auto; overflow: visible; }
 #e-defL .katex { font-size: 1.4em; }
 .ex1-topL .bar-eq { display: grid; grid-template-columns: 72px 20px 72px 20px 72px; justify-content: center; align-items: center; justify-items: center; column-gap: 4px; row-gap: 16px; margin-top: 26px; }
 .bar-eq .bar-val .katex { font-size: 1rem; }
+.bar-zero { font-size: 1.9rem; font-weight: bold; color: #3a7d44; line-height: 1; }
 .bar-eq .bar-val { white-space: nowrap; }
 .ex1-summary, .ex1-bullets, .ex1-topR { contain: layout style; }
 .ex1-topR { display: flex; flex-direction: column; align-items: center; gap: 20px; flex: 1 1 0; min-width: 0; }
@@ -160,6 +184,11 @@ svg.chart { display: block; width: 100%; height: auto; overflow: visible; }
 
 .ex2-row { display: flex; gap: 32px; align-items: flex-start; max-width: 1150px; margin: 0 auto; }
 .ex2-graph { flex: 1; min-width: 0; }
+.ex2-both { display: none; flex: 1; min-width: 0; }
+.ex2-row.combined .ex2-graph { display: none; }
+.ex2-row.combined .ex2-both { display: block; }
+.ex2-row.combined .ex2-controls { padding-top: 60px; }
+.ex2-toggle-wrap { text-align: center; margin: 18px 0 6px; }
 .ex2-graph .graph-title { font-style: italic; text-align: center; margin-bottom: 10px; font-size: 1.05rem; }
 .ex4-question { text-align: center; font-size: 1.15rem; font-weight: bold; line-height: 1.5; margin-bottom: 14px; min-height: 3.4em; display: flex; align-items: center; justify-content: center; }
 .ex4-zoom-ctrl { display: flex; align-items: center; justify-content: center; gap: 8px; margin-bottom: 8px; }
@@ -190,6 +219,9 @@ table.data-table tbody tr:nth-child(even) { background: rgba(154,138,95,0.06); }
 .ex2-deriv .deriv-label { font-style: italic; color: #666; font-size: 0.95rem; margin-bottom: 6px; }
 .ex2-deriv .katex-display { margin: 12px 0; }
 .ex2-deriv .deriv-prose { margin: 12px auto; max-width: 100%; overflow-wrap: break-word; }
+.ex2-deriv .deriv-box { border: 1.5px solid #1a1a1a; padding: 6px 16px; margin: 14px auto; width: fit-content; max-width: 100%; }
+.ex2-deriv .deriv-box .deriv-prose { margin: 4px auto; }
+.ex2-deriv .deriv-box .katex-display { margin: 6px 0; }
 .ex2-deriv .deriv-prose.one-line { white-space: nowrap; overflow: hidden; width: 100%; }
 .ex2-deriv .deriv-prose.one-line .katex { font-size: 1.05em; }
 
@@ -255,8 +287,10 @@ table.data-table tbody tr:nth-child(even) { background: rgba(154,138,95,0.06); }
 .ex3-add-btn:hover:not(:disabled) { background: rgba(154,138,95,0.12); }
 .ex3-add-btn:disabled { opacity: 0.4; cursor: default; }
 .ex3-total-toggle { font-size: 1rem; font-style: italic; color: #5b4636; cursor: pointer; user-select: none; }
-.ex3-table-wrap { max-width: 460px; margin: 28px auto 0; }
-.ex3-table-wrap .table-scroll { max-height: 260px; overflow-y: auto; border-top: 1px solid #c9b98a; border-bottom: 1px solid #c9b98a; }
+.ex3-table-wrap { width: fit-content; min-width: 460px; max-width: 96%; margin: 28px auto 0; }
+.ex3-table-wrap .table-scroll { max-height: 260px; overflow-y: auto; overflow-x: hidden; border-top: 1px solid #c9b98a; border-bottom: 1px solid #c9b98a; }
+#ex3-table th { white-space: normal; max-width: 140px; line-height: 1.3; }
+#ex3-table td { white-space: nowrap; }
 #ex3-table th, #ex3-table td { text-align: center; }
 .ex5-wrap { position: relative; max-width: 760px; margin: 0 auto; text-align: center; }
 .ex5-speed { position: absolute; top: 0; right: 0; display: flex; gap: 8px; z-index: 2; }
@@ -273,10 +307,49 @@ table.data-table tbody tr:nth-child(even) { background: rgba(154,138,95,0.06); }
 .ex5-phase { min-height: 1.6em; font-style: italic; color: #5b4636; margin-bottom: 6px; font-size: 1.05rem; }
 .ex5-amounts { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 6px 20px; max-width: 760px; margin-left: auto; margin-right: auto; align-items: center; }
 .ex5-amounts .katex { white-space: nowrap; }
-.ex5-formulas { display: grid; grid-template-columns: 1fr 1fr; gap: 10px 40px; max-width: 900px; margin: 30px auto 0; text-align: center; }
-.ex5-formulas .cell { min-width: 0; }
+.ex5-formulas { display: grid; grid-template-columns: 1fr 1fr; gap: 0; width: min(1060px, calc(100vw - 48px)); position: relative; left: 50%; transform: translateX(-50%); margin: 30px 0 0; text-align: center; }
+.gs-wrap { max-width: 1000px; overflow-anchor: none; -webkit-user-select: none; user-select: none; }
+.gs-wrap input { -webkit-user-select: text; user-select: text; }
+.gs-terms { min-height: 470px; }
+.gs-proof { min-height: 380px; }
+.gs-cols { display: grid; grid-template-columns: 1fr 1fr; margin-top: 30px; }
+.gs-col { padding: 0 22px; text-align: center; }
+.gs-col:first-child { border-right: 1px solid #d6cbb0; }
+.gs-chips { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px 4px; margin: 8px 0 12px; }
+.gs-total { margin-top: 10px; font-size: 1.05rem; }
+.gs-linkbox { margin-top: 30px; text-align: center; }
+.gs-pgrid { display: grid; grid-template-columns: 1fr 1fr; gap: 24px 0; margin-top: 14px; }
+.gs-pstep { padding: 4px 22px; text-align: center; }
+.gs-pstep:nth-child(odd) { border-right: 1px solid #d6cbb0; }
+.gs-pnum { width: 26px; height: 26px; border: 1.5px solid #1a1a1a; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; font-weight: bold; margin-bottom: 8px; }
+.gs-pwords { color: #3a3226; font-size: 1rem; line-height: 1.45; min-height: 2.9em; margin-bottom: 4px; }
+.gs-pstep .katex-display { margin: 6px 0; }
+@media (max-width: 700px) { .gs-cols, .gs-pgrid { grid-template-columns: 1fr; } .gs-col:first-child, .gs-pstep:nth-child(odd) { border-right: none; } .gs-col { padding: 14px 6px; } }
+.gs-block { margin-top: 38px; }
+.gs-say { min-height: 4.8em; margin: 4px auto 6px; max-width: 760px; font-size: 1.08rem; line-height: 1.5; color: #1a1a1a; }
+.gs-step { font-weight: bold; font-size: 1.15rem; margin: 6px 0 8px; }
+.gs-explain { color: #3a3226; font-size: 1.02rem; line-height: 1.55; margin: 4px auto 14px; max-width: 720px; min-height: 3.1em; }
+.gs-sumline { margin-top: 12px; min-height: 2.2em; }
+.gs-title { font-style: italic; color: #5b4636; margin-bottom: 8px; font-size: 1.02rem; }
+.gs-row { display: flex; flex-wrap: wrap; align-items: flex-start; justify-content: center; gap: 8px 6px; }
+.gs-lab, .gs-sum { padding-top: 2px; }
+.gs-term { text-align: center; padding: 2px 8px; border-radius: 4px; min-width: 46px; transition: opacity .12s; }
+.gs-term.off { opacity: 0.2; }
+.gs-term.new { background: #f3e3a3; }
+.gs-val { font-size: 0.85rem; margin-top: 2px; min-height: 1.1em; }
+.gs-plus { padding-top: 6px; color: #777; }
+.gs-link { margin-top: 22px; }
+.gs-money { margin-top: 8px; }
+.gs-proof { margin-top: 44px; }
+.gs-note { color: #777; font-style: italic; }
+.gs-proof .katex-display { margin: 8px 0; }
+.ex5-formulas .cell { min-width: 0; display: flex; flex-direction: column; align-items: center; justify-content: flex-start; padding: 14px 10px; }
+.ex5-formulas .cell:nth-child(odd) { border-right: 1px solid #d6cbb0; }
+.ex5-formulas .cell:nth-child(-n+2) { border-bottom: 1px solid #d6cbb0; }
+.ex5-note { margin: 0 0 14px; width: 100%; min-height: 3.6em; display: flex; align-items: center; justify-content: center; font-size: 1.12rem; font-weight: bold; line-height: 1.45; color: #1a1a1a; text-align: center; }
+.ex5-note > span { display: block; max-width: 86%; margin: 0 auto; text-align: center; text-wrap: balance; }
 .ex5-formulas .katex-display { margin: 8px 0; }
-@media (max-width: 700px) { .ex5-formulas { grid-template-columns: 1fr; } }
+@media (max-width: 700px) { .ex5-formulas { grid-template-columns: 1fr; } .ex5-formulas .cell { border: none !important; border-bottom: 1px solid #d6cbb0 !important; } }
 .ex5-amounts .hd { display: flex; align-items: flex-end; justify-content: center; min-height: 2em; font-style: italic; color: #666; border-bottom: 1px solid #c9b98a; padding-bottom: 4px; font-size: 1rem; }
 .ex5-amounts .sum, .ex5-amounts .sum-l { border-top: 1.5px solid #2c2416; padding-top: 8px; margin-top: 4px; font-weight: bold; }
 .ex5-amounts.ph-A .c3, .ex5-amounts.ph-B .c2 { font-weight: bold; }
@@ -318,9 +391,19 @@ table.data-table tbody tr:nth-child(even) { background: rgba(154,138,95,0.06); }
   .ex1-slider::-webkit-slider-thumb { width: 28px; height: 28px; }
   .ex1-slider::-moz-range-thumb { width: 24px; height: 24px; }
 }
+/* phones held upright: ask for landscape */
+#rotate-msg { display: none; position: fixed; inset: 0; z-index: 10000; background: #f1e9d8; flex-direction: column; align-items: center; justify-content: center; text-align: center; padding: 24px; font-family: 'Times New Roman', Times, serif; }
+html.rotate-me #rotate-msg { display: flex; }
+html.rotate-me .sheet { display: none; }
+.rotate-icon { width: 56px; height: 92px; border: 4px solid #2c2416; border-radius: 10px; margin-bottom: 26px; animation: rotate-hint 2.4s ease-in-out infinite; }
+@keyframes rotate-hint { 0%, 25% { transform: rotate(0deg); } 65%, 100% { transform: rotate(-90deg); } }
+.rotate-text { font-size: 1.5rem; font-weight: bold; }
+.rotate-sub { font-size: 1.05rem; color: #666; font-style: italic; margin-top: 8px; }
+@media (pointer: coarse) { .ex3-col-head { touch-action: none; } .ex3-col-lifting { opacity: 0.6; box-shadow: 0 0 0 2px #2c2416 inset; } }
 </style>
 </head>
 <body>
+<div id="rotate-msg"><div class="rotate-icon"></div><div class="rotate-text">Please turn your phone sideways</div><div class="rotate-sub">This page is built for landscape.</div></div>
 
 <div class="sheet">
   <div class="title">Interest Theory</div>
@@ -374,7 +457,12 @@ table.data-table tbody tr:nth-child(even) { background: rgba(154,138,95,0.06); }
       <div class="graph-title">Simple Interest</div>
       <svg class="chart" id="ex2-simple-chart" viewBox="0 0 380 220" preserveAspectRatio="xMidYMid meet"></svg>
     </div>
+    <div class="ex2-both" id="ex2-both">
+      <div class="graph-title">Compound vs. Simple Interest</div>
+      <svg class="chart" id="ex2-both-chart" viewBox="0 0 640 300" preserveAspectRatio="xMidYMid meet"></svg>
+    </div>
   </div>
+  <div class="ex2-toggle-wrap"><button type="button" class="ex3-add-btn" id="ex2-toggle" aria-pressed="false">Compare on one graph</button></div>
 
   <div class="ex2-tables">
     <div class="ex2-table-wrap"><div class="table-scroll"><table class="data-table" id="ex2-compound-table"></table></div></div>
@@ -391,7 +479,7 @@ table.data-table tbody tr:nth-child(even) { background: rgba(154,138,95,0.06); }
   <div class="ex3-heading">
     <div class="ex-title">Exhibit 3</div>
     <div class="section-title">Watch a Dollar Grow</div>
-    <div class="section-sub">Drag to choose when you invest $1 — see what it's worth at every other year.</div>
+    <div class="section-sub">Drag to choose when you invest $1. See what it's worth at every other year.</div>
   </div>
 
   <div class="ex3-simple">
@@ -424,7 +512,7 @@ table.data-table tbody tr:nth-child(even) { background: rgba(154,138,95,0.06); }
   <div class="ex3-heading">
     <div class="ex-title">Exhibit 4</div>
     <div class="section-title">The Animation</div>
-    <div class="section-sub">Flat payments on a time diagram &mdash; accumulate them to time n, discount the whole stack back to time 0, then accumulate each one back to where it started.</div>
+    <div class="section-sub">Flat payments on a time diagram: accumulate them to time n, discount the whole stack back to time 0, then accumulate each one back to where it started.</div>
   </div>
 
   <div class="ex5-wrap">
@@ -434,8 +522,8 @@ table.data-table tbody tr:nth-child(even) { background: rgba(154,138,95,0.06); }
       <button type="button" class="ex4-zoom-btn" id="ex5-fast" title="Faster" aria-label="Faster">+</button>
     </div>
     <div class="ex5-controls">
-      <div class="ctrl"><label>P</label><input type="number" class="num-input" id="ex5-p" value="10" step="1"></div>
-      <div class="ctrl"><label>i</label><input type="number" class="num-input" id="ex5-i" value="80" step="0.01"><span class="unit">%</span></div>
+      <div class="ctrl"><label>P</label><input type="number" class="num-input" id="ex5-p" value="1" step="1"></div>
+      <div class="ctrl"><label>i</label><input type="number" class="num-input" id="ex5-i" value="10" step="0.01"><span class="unit">%</span></div>
       <div class="ctrl"><label>n</label><input type="number" class="num-input" id="ex5-n" value="5" step="1"></div>
     </div>
     <div class="ex5-btns">
@@ -450,8 +538,26 @@ table.data-table tbody tr:nth-child(even) { background: rgba(154,138,95,0.06); }
 
   <div class="ex3-heading">
     <div class="ex-title">Exhibit 5</div>
+    <div class="section-title">The Geometric Series</div>
+    <div class="section-sub">Drag the dot along the timeline. Each payment it passes adds one more term to the sums below.</div>
+  </div>
+
+  <div class="ex5-wrap gs-wrap">
+    <div class="ex5-controls">
+      <div class="ctrl"><label>P</label><input type="number" class="num-input" id="gs-p" value="10" step="1"></div>
+      <div class="ctrl"><label>i</label><input type="number" class="num-input" id="gs-i" value="25" step="0.01"><span class="unit">%</span></div>
+      <div class="ctrl"><label>n</label><input type="number" class="num-input" id="gs-n" value="8" step="1"></div>
+    </div>
+    <div class="gs-say" id="gs-say"></div>
+    <svg class="chart" id="gs-chart" viewBox="0 0 640 270" preserveAspectRatio="xMidYMid meet"></svg>
+    <div class="gs-terms" id="gs-terms"></div>
+    <div class="gs-proof" id="gs-proof"></div>
+  </div>
+
+  <div class="ex3-heading">
+    <div class="ex-title">Exhibit 6</div>
     <div class="section-title">Annuities: A Stream of $1 Payments</div>
-    <div class="section-sub">Pay once and receive many times — or pay many times and receive once.</div>
+    <div class="section-sub">Pay once and receive many times, or pay many times and receive once.</div>
   </div>
 
   <div class="ex2-row">
@@ -520,7 +626,7 @@ const texPct   = x => `\\text{${(x * 100).toLocaleString(undefined, { minimumFra
 /* ── Intro definitions ─────────────────────────────────────────────── */
 // key: 'g' = I(t), 'r' = A(t), 'b' = A(t-1) -- that term is set bold while its bar is moving
 const COARSE = window.matchMedia('(pointer: coarse)').matches;   // touch screen
-const PHONE = window.matchMedia('(max-width: 700px)').matches;
+const PHONE = window.matchMedia('(max-width: 700px)').matches && !window.__LAND_PHONE;
 function renderEx1Defs(bold) {
   const f = (c, k) => x => `\\textcolor{${c}}{${bold === k ? '\\boldsymbol{' + x + '}' : x}}`;
   const _G = f('#3a7d44', 'g'), _R = f('#a63d2f', 'r'), _B = f('#2c4870', 'b');
@@ -621,6 +727,10 @@ function niceTicks(dataMin, dataMax, maxTicks) {
       return b;
     };
     G.bb = beam('blue', 'var(--clr-start)'); G.rb = beam('red', 'var(--clr-end)'); G.gb = beam('green', 'var(--clr-interest)');
+    G.gz = el('g', { 'data-bar': 'green', style: 'display:none' }, svg);      // shown instead of the green bar when i = 0
+    G.gzHit = el('rect', { width: 60, height: 26, fill: 'transparent' }, G.gz);
+    G.gzLine = el('line', { stroke: 'var(--clr-interest)', 'stroke-width': 3 }, G.gz);
+    G.gzText = el('text', { fill: 'var(--clr-interest)', 'text-anchor': 'start', style: 'font:bold 17px \'Times New Roman\',serif' }, G.gz);
     xKey = '';
   }
   const setBeam = (b, x, ya, yb, title) => {
@@ -666,7 +776,16 @@ function niceTicks(dataMin, dataMax, maxTicks) {
     G.lr.setAttribute('x', xr); G.lr.setAttribute('y', redLabelY);  if (G.lr.textContent !== sCur) G.lr.textContent = sCur;
     setBeam(G.bb, xb, yA0 + GAP, y0, `${sPrev} = ${cashText(A0)}`);
     setBeam(G.rb, xr, yA1 + GAP, y0, `${sCur} = ${cashText(A1)}`);
-    setBeam(G.gb, xr + 30, yA0, yA1, `I(t) = ${cashText(It)}`);
+    if (Math.abs(It) < 0.005) {                          // no interest: a flat green dash with $0 instead of a bar
+      G.gb.g.style.display = 'none'; G.gz.style.display = '';
+      const gx = xr + 30;
+      G.gzHit.setAttribute('x', gx - 10); G.gzHit.setAttribute('y', yA1 - 13);
+      G.gzLine.setAttribute('x1', gx - capHW); G.gzLine.setAttribute('x2', gx + capHW); G.gzLine.setAttribute('y1', yA1); G.gzLine.setAttribute('y2', yA1);
+      G.gzText.setAttribute('x', gx + capHW + 6); G.gzText.setAttribute('y', yA1 + 6); G.gzText.textContent = '$0';
+    } else {
+      G.gz.style.display = 'none';
+      setBeam(G.gb, xr + 30, yA0, yA1, `I(t) = ${cashText(It)}`);
+    }
   }
 
   /* ── the bars in the equation: built once, resized every frame, with the values beneath ── */
@@ -674,7 +793,7 @@ function niceTicks(dataMin, dataMax, maxTicks) {
   const icons = {};
   function buildBarRow() {
     const cell = (cls, html) => `<div class="${cls}">${html}</div>`;
-    const icon = key => `<div class="bar-item" data-bar="${key}"><svg style="display:block;overflow:visible"><line/><line/><line/></svg></div>`;
+    const icon = key => `<div class="bar-item" data-bar="${key}"><svg style="display:block;overflow:visible"><line/><line/><line/></svg>${key === 'green' ? '<span class="bar-zero" style="display:none">0</span>' : ''}</div>`;
     barRow.innerHTML =
       icon('green') + cell('bar-op', '=') + icon('red') + cell('bar-op', '&minus;') + icon('blue') +
       cell('bar-val', '') + cell('bar-op', '=') + cell('bar-val', '') + cell('bar-op', '&minus;') + cell('bar-val', '');
@@ -701,6 +820,9 @@ function niceTicks(dataMin, dataMax, maxTicks) {
       set(lines[0], mid, m, mid, h + m); set(lines[1], mid - cap, m, mid + cap, m); set(lines[2], mid - cap, h + m, mid + cap, h + m);
     };
     put('green', hOf(disp.fA1 - disp.fA0)); put('red', lenOf(disp.fA1)); put('blue', lenOf(disp.fA0));
+    // i = 0: the green bar is replaced by a green 0
+    const zero = Math.abs(model.It) < 0.005, zEl = barRow.querySelector('.bar-zero');
+    icons.green.sv.style.display = zero ? 'none' : 'block'; if (zEl) zEl.style.display = zero ? 'block' : 'none';
   }
 
   const ord = n => { const k = n % 100, d = n % 10; return n + ((k >= 11 && k <= 13) ? 'th' : d === 1 ? 'st' : d === 2 ? 'nd' : d === 3 ? 'rd' : 'th'); };
@@ -883,6 +1005,36 @@ function niceTicks(dataMin, dataMax, maxTicks) {
     `;
   }
 
+  // Both curves on one plot (shown when the toggle under the graphs is on)
+  const bothChart = document.getElementById('ex2-both-chart');
+  function renderBoth(cPts, sPts) {
+    const n = cPts.length - 1;
+    const W = 640, H = 300, padL = 66, padR = 20, padT = 30, padB = 40;
+    const plotW = W - padL - padR, plotH = H - padT - padB;
+    const all = cPts.map(p => p.y).concat(sPts.map(p => p.y));
+    const yMinRaw = Math.min(...all), yMaxRaw = Math.max(...all);
+    const breathe = (yMaxRaw - yMinRaw) * 0.12 || Math.abs(yMinRaw * 0.1) || 1;
+    const { ticks, min: lo, max: hi } = niceTicks(yMinRaw - breathe, yMaxRaw + breathe, 6);
+    const xOf = t => padL + (n === 0 ? 0 : (t / n)) * plotW, yOf = v => padT + (1 - (v - lo) / (hi - lo)) * plotH;
+    let g = '';
+    for (const v of ticks) g += `<line class="grid-line" x1="${padL}" y1="${yOf(v)}" x2="${W - padR}" y2="${yOf(v)}"/><text class="tick-label" x="${padL - 8}" y="${yOf(v) + 3}" text-anchor="end">${cashShort(v)}</text>`;
+    const xStep = niceIntStep(n || 1, 10);
+    for (let t = 0; t <= n; t += xStep) g += `<text class="tick-label" x="${xOf(t)}" y="${H - padB + 18}" text-anchor="middle">${t}</text>`;
+    if (n > 0 && n % xStep !== 0) g += `<text class="tick-label" x="${xOf(n)}" y="${H - padB + 18}" text-anchor="middle">${n}</text>`;
+    const path = pts => pts.map((p, k) => `${k === 0 ? 'M' : 'L'} ${xOf(p.t)} ${yOf(p.y)}`).join(' ');
+    const dots = (pts, c) => pts.length <= 31 ? pts.map(p => `<circle cx="${xOf(p.t)}" cy="${yOf(p.y)}" r="3" fill="${c}" stroke="#f1e9d8" stroke-width="1"><title>t=${p.t}, A(t)=${cashText(p.y)}</title></circle>`).join('') : '';
+    bothChart.innerHTML = `
+      ${g}
+      <line class="axis-line" x1="${padL}" y1="${padT}" x2="${padL}" y2="${H - padB}"/>
+      <line class="axis-line" x1="${padL}" y1="${H - padB}" x2="${W - padR}" y2="${H - padB}"/>
+      <text class="axis-title" x="${W - padR}" y="${H - padB + 34}" text-anchor="end">t</text>
+      <path d="${path(sPts)}" fill="none" stroke="var(--clr-end)" stroke-width="2.2"/>
+      <path d="${path(cPts)}" fill="none" stroke="var(--clr-start)" stroke-width="2.2"/>
+      ${dots(sPts, 'var(--clr-end)')}${dots(cPts, 'var(--clr-start)')}
+      <line x1="${padL + 10}" y1="14" x2="${padL + 36}" y2="14" stroke="var(--clr-start)" stroke-width="3"/><text class="point-label" fill="var(--clr-start)" x="${padL + 42}" y="18" style="font-size:13px">Compound</text>
+      <line x1="${padL + 140}" y1="14" x2="${padL + 166}" y2="14" stroke="var(--clr-end)" stroke-width="3"/><text class="point-label" fill="var(--clr-end)" x="${padL + 172}" y="18" style="font-size:13px">Simple</text>`;
+  }
+
   function buildTable(tableEl, points) {
     const rows = points.map(p => `<tr><td>${p.t}</td><td>${cashText(p.y)}</td></tr>`).join('');
     tableEl.innerHTML = `<thead><tr><th>${K('t')}</th><th>${K('A(t)')}</th></tr></thead><tbody>${rows}</tbody>`;
@@ -909,9 +1061,18 @@ function niceTicks(dataMin, dataMax, maxTicks) {
 
     renderSeriesChart(compoundChart, compoundPoints, 'var(--clr-start)');
     renderSeriesChart(simpleChart, simplePoints, 'var(--clr-end)');
+    renderBoth(compoundPoints, simplePoints);
     buildTable(compoundTable, compoundPoints);
     buildTable(simpleTable, simplePoints);
   }
+
+  // toggle: hide the two graphs, put the inputs on the left, show the single combined graph
+  const rowEl = document.querySelector('.ex2-row'), toggleBtn = document.getElementById('ex2-toggle');
+  toggleBtn.addEventListener('click', () => {
+    const on = rowEl.classList.toggle('combined');
+    toggleBtn.setAttribute('aria-pressed', on ? 'true' : 'false');
+    toggleBtn.textContent = on ? 'Show the two separate graphs' : 'Compare on one graph';
+  });
 
   a0El.addEventListener('input', renderExhibit2);
   iEl.addEventListener('input', renderExhibit2);
@@ -945,18 +1106,20 @@ function niceTicks(dataMin, dataMax, maxTicks) {
   // on every keystroke.
   // Every line of prose is the same plain text style (T); only the maths is KaTeX.
   const T = (text, math) => math ? `<div class="deriv-prose one-line">${text} ${K(math)}</div>` : `<div class="deriv-prose">${text}</div>`;
+  const box = html => `<div class="deriv-box">${html}</div>`;
   const cG = x => `\\textcolor{#3a7d44}{${x}}`, cR = x => `\\textcolor{#a63d2f}{${x}}`, cB = x => `\\textcolor{#2c4870}{${x}}`;
   const It = cG('I(t)'), At = cR('A(t)'), Ap = cB('A(t-1)');
 
   document.getElementById('ex2-compound-deriv').innerHTML = `
     <div class="deriv-label">Derivation</div>
     ${T('Interest accrues on the current balance:', `${It} = i\\cdot ${Ap}`)}
-    ${T('By definition:', `${It} = ${At} - ${Ap}`)}
+    ${box(T('By definition:', `${It} = ${At} - ${Ap}`))}
     ${T('Setting them equal:', `${At} - ${Ap} = i\\cdot ${Ap}`)}
     ${Kd(`\\Rightarrow \\quad ${At} = ${Ap} + i\\cdot ${Ap}`)}
     ${Kd(`\\Rightarrow \\quad ${At} = ${Ap}(1+i)`)}
     ${T('Then the rate earned in period ' + K('t') + ' is:')}
-    ${Kd(`\\begin{aligned} i_t &= \\dfrac{${It}}{${Ap}} \\\\[6pt] &= \\dfrac{i\\cdot ${Ap}}{${Ap}} = i \\end{aligned}`)}
+    ${box(Kd(`i_t = \\dfrac{${It}}{${Ap}}`))}
+    ${Kd(`= \\dfrac{i\\cdot ${Ap}}{${Ap}} = i`)}
     ${T('So ' + K('i_t = i') + ' is the same every period: each period multiplies the balance by ' + K('(1+i)') + '. Applying this recursively:')}
     ${Kd(`\\begin{aligned} ${At} &= ${Ap}(1+i) \\\\ &= A(t-2)(1+i)^2 \\\\ &= A(t-3)(1+i)^3 \\\\ &= \\cdots \\\\ &= A(0)(1+i)^t \\end{aligned}`)}
     ${Kd(`\\Rightarrow \\quad ${At} = A(0)(1+i)^t`)}
@@ -973,11 +1136,12 @@ function niceTicks(dataMin, dataMax, maxTicks) {
   document.getElementById('ex2-simple-deriv').innerHTML = `
     <div class="deriv-label">Derivation</div>
     ${T('Interest accrues only on the original principal:', `${It} = i\\cdot A(0)`)}
-    ${T('By definition:', `${It} = ${At} - ${Ap}`)}
+    ${box(T('By definition:', `${It} = ${At} - ${Ap}`))}
     ${T('Setting them equal:', `${At} - ${Ap} = i\\cdot A(0)`)}
     ${Kd(`\\Rightarrow \\quad ${At} = ${Ap} + i\\cdot A(0)`)}
     ${T('Then the rate earned in period ' + K('t') + ' is:')}
-    ${Kd(`\\begin{aligned} i_t &= \\dfrac{${It}}{${Ap}} \\\\[6pt] &= \\dfrac{i\\cdot A(0)}{${Ap}} \\end{aligned}`)}
+    ${box(Kd(`i_t = \\dfrac{${It}}{${Ap}}`))}
+    ${Kd(`= \\dfrac{i\\cdot A(0)}{${Ap}}`)}
     ${Kd(`\\Rightarrow \\quad ${At} = ${Ap}(1+i_t)`)}
     ${T('Applying the recursion:')}
     ${Kd(`\\begin{aligned} ${At} &= ${Ap}+iA(0) \\\\ &= A(t-2)+2iA(0) \\\\ &= \\cdots \\\\ &= A(0) + t\\cdot i\\cdot A(0) \\end{aligned}`)}
@@ -1197,9 +1361,9 @@ function niceTicks(dataMin, dataMax, maxTicks) {
   // table, same as the legend.
   function updateTable() {
     const showTotal = totalToggle.checked;
-    const head = '<tr><th>Year</th>' + points.map((p, idx) =>
+    const head = '<tr><th>Value</th>' + points.map((p, idx) =>
         `<th class="ex3-col-head" draggable="true" data-idx="${idx}" style="color:${p.color}">
-           <span class="ex3-col-drag">$1 amount</span><span class="ex3-legend-x">✕</span>
+           <span class="ex3-col-drag">$1 invested at t = ${p.t0}</span><span class="ex3-legend-x">✕</span>
          </th>`).join('')
       + (showTotal ? `<th style="color:${TOTAL_COLOR}">Total</th>` : '') + '</tr>';
     let rows = '';
@@ -1209,7 +1373,7 @@ function niceTicks(dataMin, dataMax, maxTicks) {
         return `<td style="color:${p.color}; ${bold ? 'font-weight:bold;' : ''}">${cashText(valueAt(p.t0, t))}</td>`;
       }).join('');
       if (showTotal) cells += `<td style="color:${TOTAL_COLOR}; font-weight:bold;">${cashText(totalAt(t))}</td>`;
-      rows += `<tr><td>${t}</td>${cells}</tr>`;
+      rows += `<tr><td>value at t = ${t}</td>${cells}</tr>`;
     }
     document.getElementById('ex3-table').innerHTML = `<thead>${head}</thead><tbody>${rows}</tbody>`;
     attachColumnHandlers();
@@ -1219,8 +1383,16 @@ function niceTicks(dataMin, dataMax, maxTicks) {
   // `points` array (the single source of truth the legend, graph, and
   // table all read from), so reordering here reorders everywhere.
   let dragSrcIdx = -1;
+  // (HTML5 drag and drop does not exist on phones, so a long press on a header picks it up)
+  let tDrag = null;
   function attachColumnHandlers() {
     document.querySelectorAll('.ex3-col-head').forEach(th => {
+      th.addEventListener('pointerdown', evt => {
+        if (evt.pointerType !== 'touch' || evt.target.closest('.ex3-legend-x')) return;
+        const st = { th, idx: +th.dataset.idx, x: evt.clientX, y: evt.clientY, lifted: false, over: null };
+        st.timer = setTimeout(() => { st.lifted = true; th.classList.add('ex3-col-lifting'); }, 280);
+        tDrag = st;
+      });
       th.addEventListener('dragstart', evt => {
         dragSrcIdx = +th.dataset.idx;
         evt.dataTransfer.effectAllowed = 'move';
@@ -1243,6 +1415,28 @@ function niceTicks(dataMin, dataMax, maxTicks) {
       });
     });
   }
+
+  window.addEventListener('pointermove', evt => {
+    if (!tDrag) return;
+    if (!tDrag.lifted) { if (Math.hypot(evt.clientX - tDrag.x, evt.clientY - tDrag.y) > 12) { clearTimeout(tDrag.timer); tDrag = null; } return; }
+    const over = document.elementFromPoint(evt.clientX, evt.clientY), h = over && over.closest ? over.closest('.ex3-col-head') : null;
+    document.querySelectorAll('.ex3-col-dragover').forEach(e => e.classList.remove('ex3-col-dragover'));
+    tDrag.over = h && h !== tDrag.th ? h : null;
+    if (tDrag.over) tDrag.over.classList.add('ex3-col-dragover');
+  });
+  const endTouchDrag = evt => {
+    if (!tDrag) return;
+    clearTimeout(tDrag.timer);
+    const st = tDrag; tDrag = null;
+    st.th.classList.remove('ex3-col-lifting');
+    document.querySelectorAll('.ex3-col-dragover').forEach(e => e.classList.remove('ex3-col-dragover'));
+    if (st.lifted && evt.type === 'pointerup' && st.over) {
+      const to = +st.over.dataset.idx;
+      if (to !== st.idx) { const [moved] = points.splice(st.idx, 1); points.splice(to, 0, moved); fullRender(); }
+    }
+  };
+  window.addEventListener('pointerup', endTouchDrag);
+  window.addEventListener('pointercancel', endTouchDrag);
 
   // The drag always snaps to a whole year.
   function setT0FromPointer(idx, evt) {
@@ -1391,7 +1585,7 @@ function niceTicks(dataMin, dataMax, maxTicks) {
     const dots = points.map(p =>
       p.big
         ? `<circle class="ex4-lump-dot" cx="${xOf(p.t)}" cy="${yOf(p.y)}" r="${lumpR}" fill="${lumpColor}"><title>Year ${p.t}: ${cashText(p.y)}</title></circle>`
-        : `<circle class="ex4-pay-dot" data-t="${p.t}" cx="${xOf(p.t)}" cy="${yOf(p.y)}" r="${dotR}" fill="${DARK}" opacity="0.8"><title>$1 paid in year ${p.t} \u2014 click to pin, hover to preview</title></circle>`
+        : `<circle class="ex4-pay-dot" data-t="${p.t}" cx="${xOf(p.t)}" cy="${yOf(p.y)}" r="${dotR}" fill="${DARK}" opacity="0.8"><title>$1 paid in year ${p.t}: click to pin, hover to preview</title></circle>`
     ).join('');
 
     svg.innerHTML = `
@@ -1606,7 +1800,16 @@ function niceTicks(dataMin, dataMax, maxTicks) {
   const PAUSE_B = 180, STAGE_B = 520;
   // Step 3: after a pause, each colour accumulates back to its own time.
   const PAUSE_C = 300, STAGE_C = 650, GAP_C = 100, DROP = 350;
-  let raf = null, mode = false, P = 10, rate = 0.8, n = 5, tl = null, speed = 1;
+  let raf = null, mode = false, P = 1, rate = 0.1, n = 5, tl = null, speed = 1;
+
+  // Short forms when space is tight: 10,000 -> $10k, 2,500,000 -> $2.5M
+  const abbrNum = v => {
+    const a = Math.abs(v), f = (x, sfx) => (Math.round(x * 10) / 10).toString().replace(/\.0$/, '') + sfx;
+    return a >= 1e12 ? f(v / 1e12, 'T') : a >= 1e9 ? f(v / 1e9, 'B') : a >= 1e6 ? f(v / 1e6, 'M') : f(v / 1e3, 'k');
+  };
+  const money = (v, lim) => Math.abs(v) >= (lim || 1e4) ? '$' + abbrNum(v) : cashText(v);            // chart labels: from 10k
+  const cash = v => money(v, 1e5);                                                                    // sentences: from 100k
+  const texMoney = v => Math.abs(v) >= 1e5 ? '\\$' + abbrNum(v).replace(/([TBMk])$/, '\\text{$1}') : texCash(v);   // equations: from 100k
 
   function readInputs() {
     P = (+pEl.value) || 0; rate = (+iEl.value) / 100;
@@ -1665,7 +1868,7 @@ function niceTicks(dataMin, dataMax, maxTicks) {
     const xOf = x => padL + (x / n) * plotW;
     const yOf = v => padT + (1 - (v - lo) / (hi - lo)) * plotH;
     let g = '';
-    for (const v of ticks) g += `<line class="grid-line" x1="${padL}" y1="${yOf(v)}" x2="${W-padR}" y2="${yOf(v)}"/><text class="tick-label" x="${padL-8}" y="${yOf(v)+3}" text-anchor="end">${cashShort(v)}</text>`;
+    for (const v of ticks) g += `<line class="grid-line" x1="${padL}" y1="${yOf(v)}" x2="${W-padR}" y2="${yOf(v)}"/><text class="tick-label" x="${padL-8}" y="${yOf(v)+3}" text-anchor="end">${money(v)}</text>`;
     const step = Math.max(1, Math.ceil(n / 12));
     for (let x = 0; x <= n; x += step) g += `<text class="tick-label" x="${xOf(x)}" y="${H-padB+18}" text-anchor="middle">${x}</text>`;
     g += `<line class="axis-line" x1="${padL}" y1="${padT}" x2="${padL}" y2="${H-padB}"/><line class="axis-line" x1="${padL}" y1="${H-padB}" x2="${W-padR}" y2="${H-padB}"/><text class="axis-title" x="${W-padR}" y="${H-padB+34}" text-anchor="end">t</text>`;
@@ -1673,13 +1876,24 @@ function niceTicks(dataMin, dataMax, maxTicks) {
     const S = mode ? stateAt(t) : { phase: 'idle', items: tlm.A.map(it => ({ k: it.k, x: it.k, val: P, base: 0, kind: 'dot' })) };
     let body = '', rows = '', stackTop = null;
     const gStr = '(1+i)';
+    // many payments: thinner bars, smaller dots, and only some of the dollar labels so nothing overlaps
+    const spacing = plotW / n, bw = Math.max(3, Math.min(20, spacing * 0.6)), dotR = Math.max(2.5, Math.min(6, spacing * 0.35));
+    const every = Math.max(1, Math.ceil(46 / spacing));
+    const stk = S.items.filter(s => s.kind === 'stack');
+    const stkX = stk.length ? xOf(stk[0].x) : null, stkY = stk.length ? yOf(Math.max(...stk.map(s => s.base + s.val))) - 6 : null;
     S.items.forEach(s => {
       const c = COLORS[(s.k - 1) % COLORS.length], bx = xOf(s.x);
-      const bar = (op) => `<rect x="${bx - 10}" y="${yOf(s.base + s.val)}" width="20" height="${Math.max(0, yOf(s.base) - yOf(s.base + s.val))}" fill="${c}" opacity="${op}"><title>${cashText(s.val)}</title></rect>`;
-      const label = (yv, dy) => `<text class="point-label" fill="${c}" x="${bx}" y="${yOf(yv) - dy}" text-anchor="middle">${cashText(s.val)}</text>`;
+      const bar = (op) => `<rect x="${bx - bw / 2}" y="${yOf(s.base + s.val)}" width="${bw}" height="${Math.max(0, yOf(s.base) - yOf(s.base + s.val))}" fill="${c}" opacity="${op}"><title>${cashText(s.val)}</title></rect>`;
+      const lx = Math.min(W - padR - 24, Math.max(padL + 24, bx));     // keep labels off the axis labels and inside the chart
+      const halo = 'paint-order:stroke;stroke:#f1e9d8;stroke-width:4px;stroke-linejoin:round';   // paper-coloured outline, so a label stays readable when it crosses another
+      const label = (yv, dy) => {
+        // a moving payment ALWAYS keeps its label (nothing blinks on and off); resting ones are thinned out only by how many there are
+        if (s.kind !== 'move' && !(s.k % every === 0 || s.k === n)) return '';
+        return `<text class="point-label" fill="${c}" x="${lx}" y="${yOf(yv) - dy}" text-anchor="middle" style="${halo}">${money(s.val)}</text>`;
+      };
       if (s.kind === 'dot') {
         body += `<line x1="${bx}" y1="${yOf(0)}" x2="${bx}" y2="${yOf(s.val)}" stroke="${c}" stroke-width="1.5" stroke-dasharray="4,4"/>
-                 <circle cx="${bx}" cy="${yOf(s.val)}" r="6" fill="${c}"><title>${cashText(s.val)}</title></circle>` + label(s.val, 11);
+                 <circle cx="${bx}" cy="${yOf(s.val)}" r="${dotR}" fill="${c}"><title>${cashText(s.val)}</title></circle>` + label(s.val, 11);
       } else if (s.kind === 'stack') {
         body += bar(0.85);
         stackTop = Math.max(stackTop === null ? -Infinity : stackTop, s.base + s.val);
@@ -1694,11 +1908,11 @@ function niceTicks(dataMin, dataMax, maxTicks) {
     if (stackTop !== null) {
       const total = S.items.filter(s => s.kind === 'stack').reduce((a, s) => a + s.val, 0);
       const sx = xOf(S.items.find(s => s.kind === 'stack').x);
-      body += `<text class="point-label" fill="#2c2416" x="${sx}" y="${yOf(stackTop) - 6}" text-anchor="middle">${cashText(total)}</text>`;
+      body += `<text class="point-label" fill="#2c2416" x="${Math.min(W - padR - 24, Math.max(padL + 24, sx))}" y="${yOf(stackTop) - 6}" text-anchor="middle" style="paint-order:stroke;stroke:#f1e9d8;stroke-width:4px;stroke-linejoin:round">${money(total)}</text>`;
     }
 
     phaseEl.textContent = !mode ? '' :
-      t >= tlm.end ? `${n} payments of ${cashText(P)} is equal to ${cashText(tlm.pv)} at t = 0 and ${cashText(tlm.totalN)} at t = ${n}` :
+      t >= tlm.end ? `${n} payments of ${cash(P)} is equal to ${cash(tlm.pv)} at t = 0 and ${cash(tlm.totalN)} at t = ${n}` :
       S.phase === 'A' ? `Accumulate each payment to t = ${n}` :
       S.phase === 'B' ? (t < tlm.B0 ? '' : `Discount the value at t = ${n} back to t = 0`) :
       'Accumulate each original payment back to its starting point';
@@ -1716,24 +1930,41 @@ function niceTicks(dataMin, dataMax, maxTicks) {
     for (let k = 1; k <= n; k++) {
       const c = COLORS[(k - 1) % COLORS.length], a0 = P * Math.pow(v, k), an = P * Math.pow(g, n - k);
       pv += a0; fv += an;
-      html += `<div style="color:${c}">${K(`${texCash(P)} \\text{ at } t=${k}`)}</div>
-               <div class="c2" style="color:${c}">${K(`Pv^{${k}} = ${texCash(a0)}`)}</div>
-               <div class="c3" style="color:${c}">${K(`P(1+i)^{${n - k}} = ${texCash(an)}`)}</div>`;
+      html += `<div style="color:${c}">${K(`${texMoney(P)} \\text{ at } t=${k}`)}</div>
+               <div class="c2" style="color:${c}">${K(`Pv^{${k}} = ${texMoney(a0)}`)}</div>
+               <div class="c3" style="color:${c}">${K(`P(1+i)^{${n - k}} = ${texMoney(an)}`)}</div>`;
     }
-    html += `<div class="sum-l">${K(texCash(P * n))}</div>
-             <div class="sum c2" style="color:#2c4870">${K(texCash(pv))}</div><div class="sum c3" style="color:#a63d2f">${K(texCash(fv))}</div>`;
+    html += `<div class="sum-l">${K(texMoney(P * n))}</div>
+             <div class="sum c2" style="color:#2c4870">${K(texMoney(pv))}</div><div class="sum c3" style="color:#a63d2f">${K(texMoney(fv))}</div>`;
     amtEl.innerHTML = html;
 
     // four corners: accumulate on the left, discount on the right; formula on top, actuarial notation below
-    const I = texPct(rate), Pm = texCash(P), fvT = texCash(fv), pvT = texCash(pv);
+    const I = texPct(rate), Pm = texMoney(P), fvT = texMoney(fv), pvT = texMoney(pv);
     const red = x => `\\textcolor{#a63d2f}{${x}}`, blue = x => `\\textcolor{#2c4870}{${x}}`;
-    const cell = (...eqs) => `<div class="cell">${eqs.map(e => Kd(e)).join('')}</div>`;
+    // four corners: the one-sentence summary on top (black, numbers coloured), then the equations, all centred
+    const cell = (note, eq) => `<div class="cell"><div class="ex5-note"><span>${note}</span></div>${Kd(eq)}</div>`;
+    const pctT = (rate * 100).toFixed(2) + '%';
+    const rc = x => `<span style="color:#a63d2f;font-weight:bold">${x}</span>`, bc = x => `<span style="color:#2c4870;font-weight:bold">${x}</span>`;
     document.getElementById('ex5-formulas').innerHTML =
-      cell(`${red('A(t)')} = ${blue('A(0)')}(1+i)^t`, `${red(fvT)} = ${blue(pvT)}(1+${I})^{${n}}`) +
-      cell(`${blue('A(0)')} = \\dfrac{${red('A(t)')}}{(1+i)^t}`, `${blue(pvT)} = \\dfrac{${red(fvT)}}{(1+${I})^{${n}}}`) +
-      cell(`s_{\\overline{n}|i} = \\dfrac{(1+i)^n-1}{i}`, `= ${Pm}\\cdot s_{\\overline{${n}}|${I}}`, `= ${Pm}\\cdot\\dfrac{(1+${I})^{${n}}-1}{${I}} = ${red(fvT)}`) +
-      cell(`a_{\\overline{n}|i} = \\dfrac{1-v^n}{i}`, `= ${Pm}\\cdot a_{\\overline{${n}}|${I}}`, `= ${Pm}\\cdot\\dfrac{1-(1+${I})^{-${n}}}{${I}} = ${blue(pvT)}`);
+      cell(`If you want to have ${rc(cash(fv))} in ${n} years, invest ${bc(cash(pv))} today.`,
+           `\\begin{aligned} ${red('A(t)')} &= ${blue('A(0)')}(1+i)^t \\\\[8pt] ${red(fvT)} &= ${blue(pvT)}(1+${I})^{${n}} \\end{aligned}`) +
+      cell(`Going the other way: to have ${rc(cash(fv))} in ${n} years, you only need to put ${bc(cash(pv))} in today.`,
+           `\\begin{aligned} ${blue('A(0)')} &= \\dfrac{${red('A(t)')}}{(1+i)^t} \\\\[8pt] ${blue(pvT)} &= \\dfrac{${red(fvT)}}{(1+${I})^{${n}}} \\end{aligned}`) +
+      cell(`${n} annual payments of ${cash(P)} are equal to one payment of ${bc(cash(pv))} today.`,
+           `\\begin{aligned} s_{\\overline{n}|i} &= \\dfrac{(1+i)^n-1}{i} \\\\[8pt] &= ${Pm}\\cdot s_{\\overline{${n}}|${I}} \\\\[8pt] &= ${Pm}\\cdot\\dfrac{(1+${I})^{${n}}-1}{${I}} = ${red(fvT)} \\end{aligned}`) +
+      cell(`Those same ${n} deposits of ${cash(P)} are worth exactly the same as one lump sum of ${bc(cash(pv))} today.`,
+           `\\begin{aligned} a_{\\overline{n}|i} &= \\dfrac{1-v^n}{i} \\\\[8pt] &= ${Pm}\\cdot a_{\\overline{${n}}|${I}} \\\\[8pt] &= ${Pm}\\cdot\\dfrac{1-(1+${I})^{-${n}}}{${I}} = ${blue(pvT)} \\end{aligned}`);
+    fitNotes();
+
   }
+
+  function fitNotes() {                      // one font size for all four sentences: the smallest any of them needs
+    const notes = [...document.querySelectorAll('.ex5-note')];
+    notes.forEach(el => { el.style.fontSize = ''; });
+    let fs = notes.length ? parseFloat(getComputedStyle(notes[0]).fontSize) : 16;
+    while (notes.some(el => el.scrollWidth > el.clientWidth + 1) && fs > 10) { fs -= 0.5; notes.forEach(el => { el.style.fontSize = fs + 'px'; }); }
+  }
+  window.addEventListener('resize', fitNotes);
 
   function stop() { if (raf) cancelAnimationFrame(raf); raf = null; btnP.disabled = false; }
   function play() {
@@ -1762,6 +1993,170 @@ function niceTicks(dataMin, dataMax, maxTicks) {
   [pEl, iEl, nEl].forEach(el => el.addEventListener('input', reset));
   reset();
 })();
+/* ── Exhibit 5: the geometric series, built one payment at a time by dragging ── */
+(function() {
+  const pEl = document.getElementById('gs-p'), iEl = document.getElementById('gs-i'), nEl = document.getElementById('gs-n');
+  const sayEl = document.getElementById('gs-say'), svg = document.getElementById('gs-chart'), termsEl = document.getElementById('gs-terms'), proofEl = document.getElementById('gs-proof');
+  const W = 640, H = 270, padL = 70, padR = 30, padT = 34, padB = 46;
+  const plotW = W - padL - padR, plotH = H - padT - padB;
+  const COLORS = ['#2c4870', '#a63d2f', '#3a7d44', '#7c4a9e', '#b8860b', '#16808a', '#8a4b2a', '#556b2f'];
+  const HL = '#f3e3a3';                                   // highlight
+  let P = 10, rate = 0.25, n = 8, k = 1, dragging = false;
+
+  const col = j => COLORS[(j - 1) % COLORS.length];
+  const cl = (c, x) => `\\textcolor{${c}}{${x}}`;
+  const d4 = x => (Math.round(x * 1e4) / 1e4).toFixed(4);
+  const texPow = (base, e) => e === 0 ? '1' : e === 1 ? base : `${base}^{${e}}`;
+
+  function readInputs() {
+    P = Math.max(0, +pEl.value || 0); rate = Math.max(0.0001, (+iEl.value || 0) / 100);
+    n = Math.max(2, Math.min(12, Math.round(+nEl.value) || 2));
+    k = Math.max(0, Math.min(k, n));
+  }
+
+  let hoverJ = null;                                       // the payment under the pointer
+
+  function drawChart() {
+    const v = 1 / (1 + rate);
+    let pvAll = 0; for (let j = 1; j <= n; j++) pvAll += P * Math.pow(v, j);
+    const yMax = Math.max(P * 1.3, pvAll * 1.1, 1);
+    const { ticks, min: lo, max: hi } = niceTicks(0, yMax, 5);
+    const spacing = plotW / (n + 1);
+    const xOf = x => padL + ((x + 0.5) / (n + 1)) * plotW, yOf = y => padT + (1 - (y - lo) / (hi - lo)) * plotH;
+    const focusJ = hoverJ !== null ? hoverJ : (k > 0 ? k : null);        // the payment we are talking about
+    let g = '';
+    for (const t of ticks) g += `<line class="grid-line" x1="${padL}" y1="${yOf(t)}" x2="${W - padR}" y2="${yOf(t)}"/><text class="tick-label" x="${padL - 8}" y="${yOf(t) + 3}" text-anchor="end">${cashShort(t)}</text>`;
+    for (let x = 0; x <= n; x++) g += `<text class="tick-label" x="${xOf(x)}" y="${H - padB + 18}" text-anchor="middle">${x}</text>`;
+    g += `<line class="axis-line" x1="${padL}" y1="${padT}" x2="${padL}" y2="${H - padB}"/><line class="axis-line" x1="${padL}" y1="${H - padB}" x2="${W - padR}" y2="${H - padB}"/><text class="axis-title" x="${W - padR}" y="${H - padB + 34}" text-anchor="end">t</text>`;
+
+    const bw = Math.max(9, Math.min(34, spacing * 0.5));
+    // the payments: coloured once the handle has passed them; the dollar amount shows while dragging or when one is in focus
+    for (let j = 1; j <= n; j++) {
+      const on = j <= k, hot = j === focusJ;
+      g += `<rect class="gs-pay" data-j="${j}" x="${xOf(j) - bw / 2}" y="${yOf(P)}" width="${bw}" height="${yOf(0) - yOf(P)}" fill="${on ? col(j) : '#d8d0bf'}" opacity="${on ? (hot ? 1 : 0.85) : 0.5}" ${hot ? 'stroke="#2c2416" stroke-width="2"' : ''} style="cursor:pointer"><title>payment ${j}: ${cashText(P)}</title></rect>`;
+      if ((dragging && on) || hot) g += `<text class="point-label" fill="${on ? col(j) : '#7a6f5a'}" x="${xOf(j)}" y="${yOf(P) - 7}" text-anchor="middle">${cashShort(P)}</text>`;
+    }
+
+    // present values stacked at t = 0: light pieces with their dollar value inside, one black outline round the whole stack
+    const sw = bw, sx = xOf(0) - sw / 2;
+    let base = 0;
+    for (let j = 1; j <= k; j++) {
+      const val = P * Math.pow(v, j), y1 = yOf(base + val), y0 = yOf(base), h = Math.max(0, y0 - y1);
+      g += `<rect x="${sx}" y="${y1}" width="${sw}" height="${h}" fill="${col(j)}" fill-opacity="${j === focusJ ? 0.5 : 0.28}" stroke="${col(j)}" stroke-width="1"><title>P·v^${j} = ${cashText(val)}</title></rect>`;
+      if (h >= 13 && sw >= 30) g += `<text x="${sx + sw / 2}" y="${y1 + h / 2 + 4}" text-anchor="middle" style="font:bold 11px 'Times New Roman',serif" fill="${col(j)}">${cashShort(val)}</text>`;
+      base += val;
+    }
+    if (k > 0) {
+      g += `<rect x="${sx}" y="${yOf(base)}" width="${sw}" height="${yOf(0) - yOf(base)}" fill="none" stroke="#1a1a1a" stroke-width="2"/>
+            <text class="point-label" fill="#1a1a1a" x="${sx + sw / 2}" y="${yOf(base) - 7}" text-anchor="middle">${cashShort(base)}</text>`;
+    }
+    // the handle
+    const hx = xOf(k), hy = yOf(0);
+    g += `<line x1="${hx}" y1="${padT}" x2="${hx}" y2="${hy}" stroke="#2c2416" stroke-width="1" stroke-dasharray="4,4" opacity="0.5"/>
+          <circle id="gs-handle" cx="${hx}" cy="${hy}" r="11" fill="#2c2416" stroke="#f1e9d8" stroke-width="2.5" style="cursor:grab; touch-action:none"><title>Drag me along the timeline</title></circle>
+          <text class="point-label" fill="#2c2416" x="${hx}" y="${padT - 12}" text-anchor="middle">k = ${k}</text>`;
+    svg.innerHTML = g;
+  }
+
+  const money = x => `<b>${cashText(x)}</b>`;
+  const cb = (c, x) => `<b style="color:${c}">${x}</b>`;
+
+  function drawSay() {
+    const v = 1 / (1 + rate), g = 1 + rate;
+    const j = hoverJ !== null ? hoverJ : (k > 0 ? k : null);
+    if (j === null) { sayEl.innerHTML = 'Drag the dot to the right to start adding payments.'; return; }
+    const inSum = j <= k;
+    sayEl.innerHTML = inSum
+      ? `Payment ${cb(col(j), j)} of ${money(P)} is ${j} period${j === 1 ? '' : 's'} away from t = 0, so today it is worth ${money(P)} &times; v<sup>${j}</sup> = ${money(P)} &times; ${d4(Math.pow(v, j))} = ${cb(col(j), cashText(P * Math.pow(v, j)))}.`
+      : `Payment ${cb('#7a6f5a', j)} is not in the sum yet. Drag the dot right to bring it in.`;
+  }
+
+  function drawTerms() {
+    const v = 1 / (1 + rate), g = 1 + rate;
+    const chip = (tex, val, j, isNew) => `<div class="gs-term ${j <= k ? 'on' : 'off'} ${isNew ? 'new' : ''}" style="color:${col(j)}">${K(tex)}<div class="gs-val">${val}</div></div>`;
+    let a = 0, s = 0, ca = '', cs = '';
+    const numsA = [], numsS = [];
+    for (let j = 1; j <= n; j++) {
+      ca += chip(texPow('v', j), d4(Math.pow(v, j)), j, j === k);
+      cs += chip(k >= j ? texPow('(1+i)', k - j) : '\\cdot', k >= j ? d4(Math.pow(g, k - j)) : '', j, j === k);
+      if (j <= k) { a += Math.pow(v, j); s += Math.pow(g, k - j); numsA.push(d4(Math.pow(v, j))); numsS.push(d4(Math.pow(g, k - j))); }
+    }
+    const gk = Math.pow(g, k);
+    const sumLine = arr => arr.length <= 5 ? arr.join(' + ') : arr.slice(0, 3).join(' + ') + ' + \\cdots + ' + arr.slice(-1);
+    const eqLine = (arr, tot) => arr.length > 1 ? `= ${sumLine(arr)} = ${tot}` : `= ${tot}`;
+    termsEl.innerHTML = `
+      <div class="gs-cols">
+        <div class="gs-col">
+          <div class="gs-step">Present value at t = 0</div>
+          <div class="gs-explain">Each period back multiplies by <b>v = ${d4(v)}</b>, so payment <i>j</i> is worth v<sup><i>j</i></sup> today.</div>
+          <div class="gs-chips">${ca}</div>
+          <div class="gs-sumline">${K(`a_{\\overline{${k}}|i} ${eqLine(numsA, d4(a))}`)}</div>
+          <div class="gs-total">${K(cl('#2c4870', `P\\,a_{\\overline{${k}}|i} = ${texCash(P * a)}`))}</div>
+        </div>
+        <div class="gs-col">
+          <div class="gs-step">Accumulated value at t = ${k}</div>
+          <div class="gs-explain">Each period forward multiplies by <b>(1+i) = ${d4(g)}</b>, so the earliest payment has grown the most.</div>
+          <div class="gs-chips">${cs}</div>
+          <div class="gs-sumline">${K(`s_{\\overline{${k}}|i} ${eqLine(numsS, d4(s))}`)}</div>
+          <div class="gs-total">${K(cl('#a63d2f', `P\\,s_{\\overline{${k}}|i} = ${texCash(P * s)}`))}</div>
+        </div>
+      </div>
+      <div class="gs-linkbox">
+        <div class="gs-explain">The same payments, valued ${k} periods later, are worth <b>(1+i)<sup>${k}</sup> = ${d4(gk)}</b> times as much.</div>
+        <div class="gs-link">${K(`s_{\\overline{${k}}|i} \\;=\\; \\colorbox{${HL}}{$(1+i)^{${k}}$}\\cdot a_{\\overline{${k}}|i} \\qquad ${d4(s)} = \\colorbox{${HL}}{$${d4(gk)}$}\\times ${d4(a)}`)}</div>
+      </div>`;
+  }
+
+  function drawProof() {
+    if (k < 2) { proofEl.innerHTML = `<div class="gs-note">Drag the dot to at least 2 payments to see why the sum has a closed form.</div>`; return; }
+    const v = 1 / (1 + rate);
+    let a = 0; for (let j = 1; j <= k; j++) a += Math.pow(v, j);
+    const dots = k > 2 ? 'v^{2} + \\cdots + ' : '';
+    const step = (num, words, tex) => `<div class="gs-pstep"><div class="gs-pnum">${num}</div><div class="gs-pwords">${words}</div>${Kd(tex)}</div>`;
+    proofEl.innerHTML = `
+      <div class="gs-step">Why the sum has a closed form</div>
+      <div class="gs-pgrid">
+        ${step(1, 'Write the sum out.', `a_{\\overline{${k}}|i} = v + ${dots}v^{${k}}`)}
+        ${step(2, 'Multiply by (1+i). Since v(1+i) = 1, every power of v drops by one.', `(1+i)\\,a_{\\overline{${k}}|i} = 1 + v + ${dots}v^{${k - 1}}`)}
+        ${step(3, 'Subtract line 1 from line 2. The middle terms cancel; only the ends survive.', `i\\,a_{\\overline{${k}}|i} = \\colorbox{${HL}}{$1$} - \\colorbox{${HL}}{$v^{${k}}$}`)}
+        ${step(4, 'Divide by i and put the numbers in.', `a_{\\overline{${k}}|i} = \\dfrac{1 - v^{${k}}}{i} = \\dfrac{1 - ${d4(Math.pow(v, k))}}{${d4(rate)}} = ${d4(a)}`)}
+      </div>`;
+  }
+
+  let textTimer = null;
+  function render() {
+    drawChart(); drawSay(); attach();
+    if (!textTimer) textTimer = setTimeout(() => { textTimer = null; drawTerms(); drawProof(); }, 70);
+  }
+  // hovering only changes the chart and the one-line explanation (cheap), not the heavy maths below
+  function renderLight() { drawChart(); drawSay(); attach(); }
+
+  // dragging: the handle (or a click on a payment) sets how many payments are in the sum
+  function svgX(evt) { const pt = svg.createSVGPoint(); pt.x = evt.clientX; pt.y = evt.clientY; return pt.matrixTransform(svg.getScreenCTM().inverse()).x; }
+  function setFromPointer(evt) {
+    const nk = Math.max(0, Math.min(n, Math.round(((svgX(evt) - padL) / plotW) * (n + 1) - 0.5)));
+    if (nk !== k) { k = nk; render(); }
+  }
+  function attach() {
+    const h = document.getElementById('gs-handle');
+    if (h) h.addEventListener('pointerdown', e => { dragging = true; e.preventDefault(); });
+    svg.querySelectorAll('.gs-pay').forEach(r => r.addEventListener('click', () => { k = +r.dataset.j; render(); }));
+  }
+  window.addEventListener('pointermove', e => { if (dragging) { e.preventDefault(); setFromPointer(e); } });
+  const stopDrag = () => { if (dragging) { dragging = false; renderLight(); } };
+  window.addEventListener('pointerup', stopDrag); window.addEventListener('pointercancel', stopDrag);
+
+  // pointing at a payment puts it in focus: its dollar amount and its present value light up
+  svg.addEventListener('pointerover', e => {
+    const r = e.target.closest ? e.target.closest('.gs-pay') : null, j = r ? +r.dataset.j : null;
+    if (j !== hoverJ) { hoverJ = j; renderLight(); }
+  });
+  svg.addEventListener('pointerleave', () => { if (hoverJ !== null) { hoverJ = null; renderLight(); } });
+
+  [pEl, iEl, nEl].forEach(el => el.addEventListener('input', () => { readInputs(); render(); }));
+  readInputs(); render();
+})();
+
 </script>
 </body>
 </html>
