@@ -4,6 +4,29 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Factorial · Permutations · Combinations · Binomial</title>
+<script>
+/* Phones: landscape only. Portrait shows a "rotate" screen; landscape lays the
+   page out at a fixed desktop-like width so it matches the computer layout.
+   Computers and tablets are untouched. */
+(function () {
+  var phone = navigator.maxTouchPoints > 0 && matchMedia('(pointer: coarse)').matches &&
+              Math.min(screen.width, screen.height) <= 600;
+  if (!phone) return;
+  var root = document.documentElement;
+  root.classList.add('phone');
+  var meta = document.querySelector('meta[name=viewport]');
+  var mq = matchMedia('(orientation: portrait)');
+  function upd() {
+    var portrait = mq.matches;
+    root.classList.toggle('portrait', portrait);
+    meta.setAttribute('content', portrait ? 'width=device-width, initial-scale=1.0' : 'width=1100');
+  }
+  upd();
+  if (mq.addEventListener) mq.addEventListener('change', upd); else mq.addListener(upd);
+  window.addEventListener('orientationchange', function () { setTimeout(upd, 100); });
+  try { screen.orientation.lock('landscape').catch(function () {}); } catch (e) {}
+})();
+</script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
@@ -419,6 +442,16 @@ input[type=range]::-webkit-slider-thumb:hover { transform: scale(1.2); }
   color: #bbb;
 }
 
+#rotate-overlay {
+  display: none; position: fixed; inset: 0; z-index: 100000; background: #fff;
+  flex-direction: column; align-items: center; justify-content: center;
+  gap: 18px; text-align: center; padding: 24px; font-size: 1.15rem; font-weight: 600; color: #111;
+}
+#rotate-overlay .rot-icon { font-size: 3.2rem; transform: rotate(90deg); line-height: 1; }
+#rotate-overlay small { font-weight: 500; color: #888; font-size: 0.85rem; }
+html.phone.portrait #rotate-overlay { display: flex; }
+html.phone.portrait header, html.phone.portrait #content { display: none; }
+
 /* ── PHONES / SMALL SCREENS (desktop layout above is untouched) ── */
 @media (max-width: 820px) {
   header { flex-direction: column; align-items: stretch; padding: 14px 16px; gap: 12px; }
@@ -463,6 +496,7 @@ input[type=range]::-webkit-slider-thumb:hover { transform: scale(1.2); }
 </style>
 </head>
 <body>
+<div id="rotate-overlay"><div class="rot-icon">&#128241;</div><div>Please turn your phone sideways</div><small>This page is built for landscape.</small></div>
 
 <header>
   <div class="header-left">
@@ -577,7 +611,7 @@ function peopleLineGraphicHtml() {
       const ok = personSuccessStates[pos];
       const badge = `<div class="pg-medal" style="background:${ok?'#27ae60':'#e74c3c'};color:#fff">${ok?'VIP':'STANDARD'}</div>`;
       return `
-      <div class="pg-person" data-pos="${pos}" onclick="onDistSingleClick(${pos})" ondblclick="onDistToggle(${pos})"
+      <div class="pg-person" data-pos="${pos}" onclick="onDistSingleClick(${pos})" ondblclick="onDistDbl(${pos})"
         onpointerdown="onDistIndicatorDown(event,${pos})" onmouseover="onLetterHover(${pos})" onmouseout="onLetterOut()">
         ${badge}
         ${personFigureSvg(pos, 84, false)}
@@ -1316,7 +1350,7 @@ function distPeopleHtml() {
     const ok = personSuccessStates[pos];
     const color = ok ? '#27ae60' : '#e74c3c';
     return `<div class="person" data-pos="${pos}" style="cursor:pointer;"
-      onclick="onDistSingleClick(${pos})" ondblclick="onDistToggle(${pos})"
+      onclick="onDistSingleClick(${pos})" ondblclick="onDistDbl(${pos})"
       onpointerdown="onDistIndicatorDown(event,${pos})"
       onmouseover="onLetterHover(${pos})" onmouseout="onLetterOut()">
       <div class="person-name" style="color:${color}">${NAMES[pos]}</div>
@@ -1346,6 +1380,14 @@ function onDistToggle(pos) {
   render();
 }
 
+// Double-tap on touch screens: detected by hand (two quick taps on the same
+// person) because phones don't reliably send a native dblclick. The native
+// one is ignored right after, so a double-tap never toggles twice.
+let _distMoved=false, _distStartX=0, _distStartY=0, _distPtrType='mouse', _lastTap={t:0,pos:-1}, _dblGuard=0;
+function onDistDbl(pos) {
+  if (Date.now() - _dblGuard < 800) return;
+  onDistToggle(pos);
+}
 let _distClone=null, _distSrcEl=null, _distSrcPos=-1, _distOffX=0, _distOffY=0, _distRaf=null, _distPrevX=0;
 
 function onDistIndicatorDown(event, pos) {
@@ -1360,6 +1402,8 @@ function onDistIndicatorDown(event, pos) {
   _distOffX   = event.clientX - rect.left;
   _distOffY   = event.clientY - rect.top;
   _distPrevX  = event.clientX;
+  _distMoved = false; _distStartX = event.clientX; _distStartY = event.clientY;
+  _distPtrType = event.pointerType || 'mouse';
 
   // Floating clone of the actual dragged circle (not a synthetic badge)
   _distClone = document.createElement('div');
@@ -1381,6 +1425,7 @@ function _onDistMove(event) {
   // This is real drag movement (not just a click) — suppress hover now.
   if (!_distHoverSuppressed) { _distHoverSuppressed = true; onLetterOut(); }
   const cx = event.clientX, cy = event.clientY;
+  if (Math.hypot(cx - _distStartX, cy - _distStartY) > 8) _distMoved = true;
   const dx = cx - _distPrevX;
   _distPrevX = cx;
   // Synchronous, not rAF-deferred — a deferred update can still be pending
@@ -1421,7 +1466,18 @@ function _onDistUp(event) {
     document.getElementById('k-val').textContent = k;
     render();
   }
+  const tapPos = _distSrcPos;
   _distSrcPos = -1;
+  if (_distPtrType === 'touch' && !_distMoved && targetPos === -1 && tapPos !== -1) {
+    const now = Date.now();
+    if (_lastTap.pos === tapPos && now - _lastTap.t < 350) {
+      _lastTap = {t:0, pos:-1};
+      _dblGuard = now;
+      onDistToggle(tapPos);
+    } else {
+      _lastTap = {t:now, pos:tapPos};
+    }
+  }
 }
 
 function renderDist() {
